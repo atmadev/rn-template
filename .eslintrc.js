@@ -33,5 +33,7 @@ module.exports = {
 		'react/jsx-handler-names': 0,
 		'react/jsx-indent': 0,
 		'max-params': ['error', 4],
+		'react/display-name': 0,
+		// '@typescript-eslint/no-namespace': 0,
 	},
 }
