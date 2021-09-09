@@ -2,4 +2,6 @@
 . "$(dirname "$0")/_/husky.sh"
 
 #eval "yarn lint"
-echo "my errz" >> /dev/stderr
+echo "lalala"
+
+exit 1
