@@ -17,6 +17,8 @@ export default function NotFoundScreen({ navigation }: RootStackScreenProps<'Not
 const unused = '' //111
 //haha lala
 
+const shouldBeAny
+
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
