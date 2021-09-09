@@ -4,4 +4,4 @@
 #eval "yarn lint"
 echo "lalala"
 
-exit 1
+exit 0
