@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo eval "yarn lint"
+#eval "yarn lint"
+npm test
