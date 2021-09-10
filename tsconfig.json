@@ -1,7 +1,15 @@
 {
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
+	"extends": "expo/tsconfig.base",
+	"compilerOptions": {
+		"target": "es5",
+		"module": "commonjs",
+		"lib": ["es2019", "dom"],
+		"jsx": "react-native",
+		"skipLibCheck": true,
+		"strict": true,
+		"noImplicitAny": false,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
 		"baseUrl": "./",
 		"paths": {
 			"screens/*": ["./sources/screens/*"],
@@ -10,5 +18,5 @@
 			"navigation": ["./sources/navigation"],
 			"shared/*": ["./shared/*"]
 		}
-  }
+	}
 }

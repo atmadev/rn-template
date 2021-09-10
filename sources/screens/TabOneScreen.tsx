@@ -5,7 +5,7 @@ import EditScreenInfo from 'components/EditScreenInfo'
 import { Text, View } from 'components/Themed'
 import { RootTabScreenProps } from '../../shared/types'
 
-export const TabOneScreen = ({}: RootTabScreenProps<'TabOne'>) => {
+export const TabOneScreen = (props: RootTabScreenProps<'TabOne'>) => {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Tab One</Text>

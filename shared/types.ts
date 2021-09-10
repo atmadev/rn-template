@@ -27,3 +27,15 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 	BottomTabScreenProps<RootTabParamList, Screen>,
 	NativeStackScreenProps<RootStackParamList>
 >
+
+export type Profile = {
+	id: string
+	firstName: string
+	lastName: string
+	age: number
+	male: boolean
+	interests: string[]
+	settings: {
+		pushNotification: boolean
+	}
+}
