@@ -35,11 +35,11 @@ const _ = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, f
 const shape = <T extends Shape>(s: T) => s
 
 export const Country = shape({
-	id: _('string', 'indexed', 'unique'),
-	name: _('string'),
+	id: _(string, 'indexed', 'unique'),
+	name: string,
 })
 
-export const Profile = shape({
+export const ProfileShape = shape({
 	id: _(string, 'unique', 'indexed', 'required'),
 	createdAt: _(number, 'indexed'),
 	country: _(Country, 'required'),
@@ -55,12 +55,22 @@ export const Profile = shape({
 	},
 })
 
-type Typed<T extends Type> = T extends PrimitiveType ? PrimitiveTypeMap[T] : Shaped<T>
+type Typed<T extends Type> = T extends PrimitiveType
+	? PrimitiveTypeMap[T]
+	: T extends PrimitiveType[]
+	? PrimitiveTypeMap[T[number]][]
+	: T extends Shape | Shape[]
+	? Shaped<T>
+	: never
 
-type Shaped<T> = {
+type Shaped<T extends Shape | Shape[]> = {
 	[P in keyof T]: T[P] extends PrimitiveType
 		? PrimitiveTypeMap[T[P]]
 		: T[P] extends ShapeItem
 		? Expand<Typed<T[P]['type']>>
-		: Expand<Shaped<T[P]>>
+		: T[P] extends Shape
+		? Expand<Shaped<T[P]>>
+		: never
 }
+
+type ShapedProfile = Shaped<typeof ProfileShape>

@@ -3,8 +3,8 @@
 
 // expands object types one level deep
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never
-/*
 export type StringKeys = { [key: string]: any }
+/*
 
 //TODO: add coments to the shape type
 export type BasicShape = {

@@ -13,7 +13,6 @@ type IsOperator = 'IS'
 type IsValue = Notted<'NULL'>
 type Operator = BasicOperator | InOperator | LikeOperator | BetweenOperator | IsOperator
 type ColumnTypes = number | string | boolean
-type Order = 'ASC' | 'DESC'
 
 type OnlyAllowedTypes<T> = { [P in keyof T as T[P] extends ColumnTypes ? P : never]: T[P] }
 
@@ -23,16 +22,13 @@ type WhereItem<T> = {
 	value: any
 }
 
-type OrderItem<T> = {
-	key: keyof T
-	order?: Order
-}
+type OrderItem<Type> = keyof Type | `${string & keyof Type} DESC`
 
 class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 	columns: (keyof T)[] = []
 	private readonly whereItems: WhereItem<T>[] = []
-	readonly orderItems: OrderItem<T>[] = []
-	readonly table: string
+	private readonly orderItems: OrderItem<T>[] = []
+	private readonly table: string
 
 	constructor(table: string, columns: (keyof T)[]) {
 		this.table = table
@@ -56,15 +52,13 @@ class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 						})
 						.join(' AND ')
 				: '') +
-			(this.orderItems.length > 0
-				? ' ORDER BY ' + this.orderItems.map((i) => i.key + (i.order ? ' ' + i.order : '')).join(', ')
-				: '')
+			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(', ') : '')
 
 		return { sql, args }
 	}
 
-	where = <P extends keyof T, O extends Operator, V extends T[P]>(
-		key: P,
+	where = <K extends keyof T, O extends Operator, V extends T[K]>(
+		key: K,
 		operator: O,
 		value: O extends InOperator
 			? V[]
@@ -77,28 +71,57 @@ class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 			: V,
 	) => {
 		this.whereItems.push({ key, operator, value })
-		return { and: this.where }
+		return this
 	}
 
-	orderBy = (key: keyof T, order?: Order) => this.orderItems.push({ key, order })
+	orderBy = (...keys: OrderItem<T>[]) => {
+		this.orderItems.push(...keys)
+		return this
+	}
 }
 
+class Table<T> {
+	name: string
+	constructor(name: string) {
+		this.name = name
+	}
+
+	// insert = (object: T) => new InsertQuery(this.name, Object.keys(object))
+	select = (...columns: (keyof T)[]) => new SelectQuery(this.name, columns)
+	update = () => {}
+	delete = () => {}
+}
+
+// TODO: test SQL again
+
+const t = new Table<Profile>('profile')
+t.select('firstName', 'id')
+	.where('firstName', 'LIKE', 's%')
+	.where('age', '>=', 22)
+	.where('age', 'NOT BETWEEN', [1, 2])
+	.where('lastName', 'IN', ['Alex', 'Julia', 'Liana'])
+	.where('male', '=', true)
+	.where('id', '=', 'ffew')
+	.where('lastName', 'IS', 'NOT NULL')
+	.orderBy('interests DESC', 'firstName', 'lastName DESC', 'interests')
+
+/*
+	//TODO: Use shapes in SQL to specify columns before insert
+
 class InsertQuery<A, T = OnlyAllowedTypes<A>> {
-	private readonly columns: (keyof T)[] = []
-	private readonly whereItems: WhereItem<T>[] = []
-	readonly orderItems: OrderItem<T>[] = []
-	readonly table: string
+	columns: (keyof T)[] = []
+	private readonly table: string
+	private readonly object: T
 
 	constructor(table: string, object: T) {
 		this.table = table
-		// this.columns = Object.keys(object)
-		// TODO: implement
+		this.object = object
 	}
 
 	private get structured(): StructuredQuery {
-		const args = this.whereItems.flatMap((i) => i.value)
+		const args = [] // TODO: implement this.whereItems.flatMap((i) => i.value)
 		const sql =
-			`SELECT ${this.columns.length > 0 ? this.columns.join(',') : '*'} FROM ${this.table}` +
+			`INSERT INTO ${this.table} ${this.columns.length > 0 ? '(' + this.columns.join(',') + ')' : ''}` +
 			(this.whereItems.length > 0
 				? ' WHERE ' +
 				  this.whereItems
@@ -112,15 +135,13 @@ class InsertQuery<A, T = OnlyAllowedTypes<A>> {
 						})
 						.join(' AND ')
 				: '') +
-			(this.orderItems.length > 0
-				? ' ORDER BY ' + this.orderItems.map((i) => i.key + (i.order ? ' ' + i.order : '')).join(', ')
-				: '')
+			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(', ') : '')
 
 		return { sql, args }
 	}
 
-	where = <P extends keyof T, O extends Operator, V extends T[P]>(
-		key: P,
+	where = <K extends keyof T, O extends Operator, V extends T[K]>(
+		key: K,
 		operator: O,
 		value: O extends InOperator
 			? V[]
@@ -133,30 +154,7 @@ class InsertQuery<A, T = OnlyAllowedTypes<A>> {
 			: V,
 	) => {
 		this.whereItems.push({ key, operator, value })
-		return { and: this.where }
+		return this
 	}
-
-	orderBy = (key: keyof T, order?: Order) => this.orderItems.push({ key, order })
 }
-
-class Table<T> {
-	name: string
-	constructor(name: string) {
-		this.name = name
-	}
-
-	insert = (object: T) => new InsertQuery(this.name, Object.keys(object))
-	select = (...columns: (keyof T)[]) => new SelectQuery(this.name, columns)
-	update = () => {}
-	delete = () => {}
-}
-
-const t = new Table<Profile>('profile')
-t.select('firstName', 'id')
-	.where('firstName', 'LIKE', 's%')
-	.and('age', '>=', 22)
-	.and('age', 'NOT BETWEEN', [1, 2])
-	.and('lastName', 'IN', ['Alex', 'Julia', 'Liana'])
-	.and('male', '=', true)
-	.and('id', '=', 'ffew')
-	.and('lastName', 'IS', 'NOT NULL')
+*/
