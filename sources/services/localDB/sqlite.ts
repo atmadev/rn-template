@@ -1,5 +1,6 @@
 import { openDatabase, Query as StructuredQuery } from 'expo-sqlite'
 import { Profile } from 'shared/types'
+import { getLast } from '../utils'
 
 const db = openDatabase('db')
 
@@ -24,9 +25,21 @@ type WhereItem<T> = {
 
 type OrderItem<Type> = keyof Type | `${string & keyof Type} DESC`
 
+type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]> = O extends InOperator
+	? V[]
+	: O extends BetweenOperator
+	? [V, V]
+	: O extends LikeOperator
+	? string
+	: O extends IsOperator
+	? IsValue
+	: V
+
+type AllowedOperators<T> = T extends string ? Operator : BasicOperator | BetweenOperator | InOperator | IsOperator
+
 class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 	columns: (keyof T)[] = []
-	private readonly whereItems: WhereItem<T>[] = []
+	private readonly whereItems: WhereItem<T>[][] = []
 	private readonly orderItems: OrderItem<T>[] = []
 	private readonly table: string
 
@@ -36,42 +49,73 @@ class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 	}
 
 	private get structured(): StructuredQuery {
-		const args = this.whereItems.flatMap((i) => i.value)
+		const args = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
 		const sql =
 			`SELECT ${this.columns.length > 0 ? this.columns.join(',') : '*'} FROM ${this.table}` +
 			(this.whereItems.length > 0
 				? ' WHERE ' +
 				  this.whereItems
-						.map((i) => {
-							const string = i.key + ' ' + i.operator + ' '
-							if (i.operator.includes('BETWEEN')) return string + '? AND ?'
-							else if (i.operator.includes('IN')) return string + "('" + i.value.map(() => '?').join("', '") + "')"
-							else if (i.operator.includes('LIKE')) return string + "'?'"
-							else if (i.operator === 'IS') return string + i.value
-							else return string + '?'
+						.map((items) => {
+							return (
+								(items.length > 1 ? '(' : '') +
+								items
+									.map((i) => {
+										const string = i.key + ' ' + i.operator + ' '
+										if (i.operator.includes('BETWEEN')) return string + '? AND ?'
+										else if (i.operator.includes('IN')) return string + '(' + i.value.map(() => '?').join(',') + ')'
+										else if (i.operator.includes('LIKE')) return string + '?'
+										else if (i.operator === 'IS') return string + i.value
+										else return string + '?'
+									})
+									.join(' OR ') +
+								(items.length > 1 ? ')' : '')
+							)
 						})
 						.join(' AND ')
 				: '') +
-			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(', ') : '')
+			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(',') : '')
 
 		return { sql, args }
 	}
 
-	where = <K extends keyof T, O extends Operator, V extends T[K]>(
+	where = <K extends keyof T, O extends AllowedOperators<T[K]>, V extends T[K], Value = InferValue<T, K, O, V>>(
 		key: K,
 		operator: O,
-		value: O extends InOperator
-			? V[]
-			: O extends BetweenOperator
-			? [V, V]
-			: O extends LikeOperator
-			? string
-			: O extends IsOperator
-			? IsValue
-			: V,
+		value: Value,
 	) => {
-		this.whereItems.push({ key, operator, value })
-		return this
+		this.whereItems.push([{ key, operator, value }])
+		return {
+			and: this.andWhere,
+			or: this.orWhere,
+			orderBy: this.orderBy,
+			structured: this.structured,
+		}
+	}
+
+	private orWhere = <K extends keyof T, O extends Operator, V extends T[K], Value = InferValue<T, K, O, V>>(
+		key: K,
+		operator: O,
+		value: Value,
+	) => {
+		getLast(this.whereItems)?.push({ key, operator, value })
+		return {
+			or: this.orWhere,
+			orderBy: this.orderBy,
+			structured: this.structured,
+		}
+	}
+
+	private andWhere = <K extends keyof T, O extends Operator, V extends T[K], Value = InferValue<T, K, O, V>>(
+		key: K,
+		operator: O,
+		value: Value,
+	) => {
+		this.whereItems.push([{ key, operator, value }])
+		return {
+			and: this.andWhere,
+			orderBy: this.orderBy,
+			structured: this.structured,
+		}
 	}
 
 	orderBy = (...keys: OrderItem<T>[]) => {
@@ -81,7 +125,7 @@ class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 }
 
 class Table<T> {
-	name: string
+	readonly name: string
 	constructor(name: string) {
 		this.name = name
 	}
@@ -92,18 +136,25 @@ class Table<T> {
 	delete = () => {}
 }
 
-// TODO: test SQL again
-
 const t = new Table<Profile>('profile')
-t.select('firstName', 'id')
-	.where('firstName', 'LIKE', 's%')
-	.where('age', '>=', 22)
-	.where('age', 'NOT BETWEEN', [1, 2])
-	.where('lastName', 'IN', ['Alex', 'Julia', 'Liana'])
-	.where('male', '=', true)
-	.where('id', '=', 'ffew')
-	.where('lastName', 'IS', 'NOT NULL')
-	.orderBy('interests DESC', 'firstName', 'lastName DESC', 'interests')
+const q = t.select('firstName', 'id')
+
+q.where('firstName', 'LIKE', 's%')
+	.and('age', '>=', 22)
+	.and('age', 'NOT BETWEEN', [1, 2])
+	.and('lastName', 'IN', ['Alex', 'Julia', 'Liana'])
+	.and('male', '=', true)
+	.and('id', '=', 'ffew')
+	.and('lastName', 'IS', 'NOT NULL')
+
+q.where('lastName', 'LIKE', 's%')
+	.or('lastName', 'LIKE', '% s%')
+	.or('firstName', 'LIKE', 's%')
+	.or('firstName', 'LIKE', '% s%')
+
+q.where('firstName', 'LIKE', 'Valera').and('age', '>', 12)
+
+q.orderBy('interests DESC', 'firstName', 'lastName DESC', 'interests')
 
 /*
 	//TODO: Use shapes in SQL to specify columns before insert
@@ -138,23 +189,6 @@ class InsertQuery<A, T = OnlyAllowedTypes<A>> {
 			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(', ') : '')
 
 		return { sql, args }
-	}
-
-	where = <K extends keyof T, O extends Operator, V extends T[K]>(
-		key: K,
-		operator: O,
-		value: O extends InOperator
-			? V[]
-			: O extends BetweenOperator
-			? [V, V]
-			: O extends LikeOperator
-			? string
-			: O extends IsOperator
-			? IsValue
-			: V,
-	) => {
-		this.whereItems.push({ key, operator, value })
-		return this
 	}
 }
 */

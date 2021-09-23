@@ -34,13 +34,15 @@ const _ = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, f
 
 const shape = <T extends Shape>(s: T) => s
 
+const id = _(string, 'unique', 'indexed', 'required')
+
 export const Country = shape({
-	id: _(string, 'indexed', 'unique'),
+	id,
 	name: string,
 })
 
 export const ProfileShape = shape({
-	id: _(string, 'unique', 'indexed', 'required'),
+	id,
 	createdAt: _(number, 'indexed'),
 	country: _(Country, 'required'),
 	online: _(boolean),
