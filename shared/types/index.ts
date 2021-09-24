@@ -6,6 +6,7 @@
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { PickShape } from './primitives'
 
 export type RootStackParamList = {
 	Root: NavigatorScreenParams<RootTabParamList> | undefined
@@ -28,14 +29,4 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 	NativeStackScreenProps<RootStackParamList>
 >
 
-export type Profile = {
-	id: string
-	firstName: string
-	lastName: string
-	age: number
-	male: boolean
-	interests: string[]
-	settings: {
-		pushNotification: boolean
-	}
-}
+export type Profile = PickShape<'Profile'>

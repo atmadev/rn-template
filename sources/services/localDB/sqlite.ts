@@ -1,8 +1,35 @@
 import { openDatabase, Query as StructuredQuery } from 'expo-sqlite'
-import { Profile } from 'shared/types'
+import { PickShape } from 'shared/types/primitives'
+import * as shapes from 'shared/types/shapes'
 import { getLast } from '../utils'
 
-const db = openDatabase('db')
+type Shapes = typeof shapes
+
+const sqlite = openDatabase('db')
+
+export const setupDBForShapes = (...shapeNames: (keyof Shapes)[]) => {
+	for (const shapeName of shapeNames) {
+		// create JS table for each shape
+
+		// create SQLite table for each shape
+		// validate are all fields presented in the SQLite
+		const shape = shapes[shapeName]
+	}
+
+	// return DB object with JS tables
+}
+
+class Table<N extends keyof Shapes, T = PickShape<N>> {
+	readonly name: N
+	constructor(name: N) {
+		this.name = name
+	}
+
+	// insert = (object: T) => new InsertQuery(this.name, Object.keys(object))
+	select = (...columns: (keyof T)[]) => new SelectQuery(this.name, columns)
+	update = () => {}
+	delete = () => {}
+}
 
 type Notted<T extends string> = T | `NOT ${T}`
 
@@ -25,14 +52,12 @@ type WhereItem<T> = {
 
 type OrderItem<Type> = keyof Type | `${string & keyof Type} DESC`
 
-type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]> = O extends InOperator
-	? V[]
-	: O extends BetweenOperator
-	? [V, V]
-	: O extends LikeOperator
-	? string
-	: O extends IsOperator
-	? IsValue
+// prettier-ignore
+type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]> = 
+		O extends InOperator 			? V[]
+	: O extends BetweenOperator ? [V, V]
+	: O extends LikeOperator	  ? string
+	: O extends IsOperator 			? IsValue
 	: V
 
 type AllowedOperators<T> = T extends string ? Operator : BasicOperator | BetweenOperator | InOperator | IsOperator
@@ -124,19 +149,7 @@ class SelectQuery<A, T = OnlyAllowedTypes<A>> {
 	}
 }
 
-class Table<T> {
-	readonly name: string
-	constructor(name: string) {
-		this.name = name
-	}
-
-	// insert = (object: T) => new InsertQuery(this.name, Object.keys(object))
-	select = (...columns: (keyof T)[]) => new SelectQuery(this.name, columns)
-	update = () => {}
-	delete = () => {}
-}
-
-const t = new Table<Profile>('profile')
+const t = new Table('Profile')
 const q = t.select('firstName', 'id')
 
 q.where('firstName', 'LIKE', 's%')
