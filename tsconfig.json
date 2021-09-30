@@ -13,13 +13,10 @@
 		"noImplicitAny": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"baseUrl": "./",
+		"baseUrl": "./sources/",
 		"paths": {
-			"screens/*": ["./sources/screens/*"],
-			"assets/*": ["./assets/*"],
-			"components/*": ["./sources/components/*"],
-			"navigation": ["./sources/navigation"],
-			"shared/*": ["./shared/*"]
+			"assets/*": ["../assets/*"],
+			"shared/*": ["../shared/*"]
 		}
 	}
 }

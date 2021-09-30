@@ -23,6 +23,7 @@ export const Profile = shape({
 	numbers: _([number], 'indexed'),
 	countries: [Country],
 	country: _(Country, 'required', 'unique'),
+	countryId: _(string, 'local'),
 	online: _(boolean, 'transient'),
 
 	firstName: string,

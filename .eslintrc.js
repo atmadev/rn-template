@@ -5,8 +5,11 @@ module.exports = {
 		react: {
 			version: 'detect', // Tells eslint-plugin-react to automatically detect the version of React to use
 		},
+		'import/resolver': {
+			'babel-module': {},
+		},
 	},
-	extends: ['standard', 'standard-react', 'prettier'],
+	extends: ['standard', 'standard-react', 'prettier', 'plugin:import/typescript'],
 	plugins: ['@typescript-eslint', 'prettier', 'react-hooks'],
 
 	rules: {
@@ -15,9 +18,7 @@ module.exports = {
 		'@typescript-eslint/explicit-module-boundary-types': 0,
 		'@typescript-eslint/no-var-requires': 0,
 		'@typescript-eslint/ban-types': 0,
-		'@typescript-eslint/no-explicit-any': 2,
 		'@typescript-eslint/ban-ts-comment': 0,
-		'@typescript-eslint/no-explicit-any': 0, //TODO: remove
 		'no-unused-vars': 0,
 		'no-unused-expressions': 0,
 		'no-use-before-define': 0,
@@ -28,6 +29,7 @@ module.exports = {
 		'react/jsx-indent': 0,
 		'max-params': ['error', 4],
 		'react/display-name': 0,
+		camelcase: 0,
 		// '@typescript-eslint/no-namespace': 0,
 	},
 }

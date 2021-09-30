@@ -1,6 +1,6 @@
 import * as shapes from './shapes'
 
-export type Flag = 'required' | 'indexed' | 'unique' | 'transient'
+export type Flag = 'required' | 'indexed' | 'unique' | 'transient' | 'local'
 
 export type TypeInternal = PrimitiveType | Shape
 export type Type = TypeInternal | TypeInternal[]
@@ -56,10 +56,15 @@ export type Shaped<S extends Shape | Shape[]> = Expand<
 >
 
 type RequiredOnly<S extends Shape> = {
-	[K in keyof S as S[K] extends ShapeItem ? (ExtractRequired<S[K]> extends never ? never : K) : never]: S[K]
+	[K in keyof S as S[K] extends ShapeItem
+		? ExtractRequired<S[K]> extends never
+			? never
+			: K
+		: never]: S[K]
 }
 
-type Shapes = typeof shapes
+export type Shapes = typeof shapes
+export type ShapeName = keyof Shapes
 
 export type PickShape<ShapeName extends keyof Shapes> = Shaped<Shapes[ShapeName]>
 

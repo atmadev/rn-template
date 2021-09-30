@@ -1,16 +1,22 @@
 import * as React from 'react'
 import { StyleSheet } from 'react-native'
 
-import EditScreenInfo from 'components/EditScreenInfo'
 import { Text, View } from 'components/Themed'
-import { RootTabScreenProps } from '../../shared/types'
+import { RootTabScreenProps } from 'shared/types'
+import { setupDBForShapes } from 'services/localDB/sqlite'
 
-export const TabOneScreen = (props: RootTabScreenProps<'TabOne'>) => {
+export const TabOneScreen = (_: RootTabScreenProps<'TabOne'>) => {
+	setupDBForShapes('Profile', 'Country')
+		.then(async (db) => {
+			console.log('db', JSON.stringify(db, undefined, 2))
+
+			const result = await db.table('Profile').select().fetch()
+			console.log('result', result)
+		})
+		.catch((e) => console.log('Setup Shapes error', e))
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Tab One</Text>
-			<View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-			<EditScreenInfo path="/screens/TabOneScreen.tsx" />
+			<Text style={styles.title}>SQLite Test Lab</Text>
 		</View>
 	)
 }
