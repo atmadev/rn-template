@@ -1,5 +1,5 @@
-import { Type, ShapeName, Flag } from './primitives'
-import * as shapes from './shapes'
+import { Type, ShapeName, Flag, Shapes } from './primitives'
+import { shapes } from './shapes'
 
 export const mapKeys = <T>(
 	shapeName: ShapeName,

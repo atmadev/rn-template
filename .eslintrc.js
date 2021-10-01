@@ -13,14 +13,13 @@ module.exports = {
 	plugins: ['@typescript-eslint', 'prettier', 'react-hooks'],
 
 	rules: {
-		'@typescript-eslint/no-unused-expressions': 2,
+		'@typescript-eslint/no-unused-expressions': 1,
 		'@typescript-eslint/no-empty-function': 0,
 		'@typescript-eslint/explicit-module-boundary-types': 0,
 		'@typescript-eslint/no-var-requires': 0,
 		'@typescript-eslint/ban-types': 0,
 		'@typescript-eslint/ban-ts-comment': 0,
-		'no-unused-vars': 0,
-		'no-unused-expressions': 0,
+		'no-unused-vars': 1,
 		'no-use-before-define': 0,
 		'no-undef': 0,
 		'array-callback-return': 0,

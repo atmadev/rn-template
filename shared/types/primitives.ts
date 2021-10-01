@@ -1,4 +1,4 @@
-import * as shapes from './shapes'
+import { shapes } from './shapes'
 
 export type Flag = 'required' | 'indexed' | 'unique' | 'transient' | 'local'
 
@@ -63,10 +63,30 @@ type RequiredOnly<S extends Shape> = {
 		: never]: S[K]
 }
 
+export type PersistentOnly<S extends Shape> = {
+	[K in keyof S as S[K] extends ShapeItem
+		? ExtractFlag<S[K], 'transient'> extends never
+			? K
+			: never
+		: never]: S[K]
+} &
+	Shape
+
+export type PersistentShaped<S extends Shape> = Shaped<
+	{
+		[K in keyof S as S[K] extends ShapeItem
+			? ExtractFlag<S[K], 'transient'> extends never
+				? K
+				: never
+			: K]: S[K]
+	}
+>
+
 export type Shapes = typeof shapes
 export type ShapeName = keyof Shapes
 
-export type PickShape<ShapeName extends keyof Shapes> = Shaped<Shapes[ShapeName]>
+export type PickObject<SN extends ShapeName> = Shaped<Shapes[SN]>
+export type PickPersistentObject<SN extends ShapeName> = PersistentShaped<Shapes[SN]>
 
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never
 export type StringKeys = { [key: string]: any }

@@ -12,21 +12,20 @@ const shape = <T extends Shape>(s: T) => s
 
 const id = _(string, 'unique', 'indexed', 'required')
 
-export const Country = shape({
+const Country = shape({
 	id,
 	name: string,
 })
 
-export const Profile = shape({
+const Profile = shape({
 	id,
 	createdAt: _(number, 'indexed', 'required'),
 	numbers: _([number], 'indexed'),
-	countries: [Country],
-	country: _(Country, 'required', 'unique'),
-	countryId: _(string, 'local'),
+	country: _(Country, 'required', 'transient'),
+	countryId: _(string, 'indexed'),
 	online: _(boolean, 'transient'),
 
-	firstName: string,
+	firstName: _(string, 'required'),
 	lastName: string,
 	age: number,
 	male: boolean,
@@ -35,3 +34,5 @@ export const Profile = shape({
 		pushNotification: boolean,
 	},
 })
+
+export const shapes = { Country, Profile }

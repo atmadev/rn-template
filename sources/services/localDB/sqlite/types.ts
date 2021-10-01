@@ -1,3 +1,5 @@
+import { ShapeName, PersistentOnly, Shapes, Shaped } from 'shared/types/primitives'
+
 type Notted<T extends string> = T | `NOT ${T}`
 
 export type BasicOperator = '=' | '>' | '<' | '>=' | '<=' | '<>'
@@ -9,15 +11,17 @@ export type IsValue = Notted<'NULL'>
 export type Operator = BasicOperator | InOperator | LikeOperator | BetweenOperator | IsOperator
 export type ColumnTypes = number | string | boolean
 
-export type OnlyAllowedTypes<T> = { [P in keyof T as T[P] extends ColumnTypes ? P : never]: T[P] }
+export type Querible<T> = {
+	[P in keyof T as T[P] extends ColumnTypes | undefined ? P : never]: T[P]
+}
 
-export type WhereItem<T> = {
-	key: keyof T
+export type WhereItem = {
+	key: string
 	operator: Operator
 	value: any
 }
 
-export type OrderItem<Type> = keyof Type | `${string & keyof Type} DESC`
+export type OrderItem<Key> = Key | `${string & Key} DESC`
 
 // prettier-ignore
 export type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]> = 
@@ -30,6 +34,9 @@ export type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]>
 export type AllowedOperators<T> = T extends string
 	? Operator
 	: BasicOperator | BetweenOperator | InOperator | IsOperator
+
+export type PersistentShape<S extends ShapeName> = PersistentOnly<Shapes[S]>
+export type PersistentObject<SN extends ShapeName> = Shaped<PersistentShape<SN>>
 
 export type SQLiteRowInfo = {
 	cid: number
