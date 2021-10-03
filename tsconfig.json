@@ -3,7 +3,10 @@
 	"compilerOptions": {
 		"target": "es5",
 		"module": "commonjs",
-		"lib": ["es2019", "dom"],
+		"lib": [
+			"es2019",
+			"dom"
+		],
 		"jsx": "react-native",
 		"noEmit": true,
 		"skipLibCheck": true,
@@ -15,8 +18,12 @@
 		"resolveJsonModule": true,
 		"baseUrl": "./sources/",
 		"paths": {
-			"assets/*": ["../assets/*"],
-			"shared/*": ["../shared/*"]
+			"assets/*": [
+				"../assets/*"
+			],
+			"shared/*": [
+				"../shared/*"
+			]
 		}
 	}
 }

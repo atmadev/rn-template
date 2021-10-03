@@ -1,4 +1,4 @@
-import { PickPersistentObject, ShapeName } from 'shared/types/primitives'
+import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { capitalized } from 'services/utils'
 import { Querible } from './types'
 import { InsertQuery, SelectQuery } from './queries'
@@ -25,12 +25,12 @@ class Table<SN extends ShapeName> {
 		this.name = name
 	}
 
-	insert = (...objects: PickPersistentObject<SN>[]) => {
+	insert = (...objects: PersistentShaped<SN>[]) => {
 		const query = new InsertQuery(this.name, objects)
 		return query.perform()
 	}
 
-	select = <SelectedColumn extends keyof PickPersistentObject<SN>>(
+	select = <SelectedColumn extends keyof PersistentShaped<SN>>(
 		...columns: SelectedColumn[]
 	) => {
 		return new SelectQuery(this.name, columns)
@@ -39,7 +39,7 @@ class Table<SN extends ShapeName> {
 	update = () => { }
 	delete = () => { }
 
-	createIndex = async (...columns: (keyof Querible<PickPersistentObject<SN>> & string)[]) =>
+	createIndex = async (...columns: (keyof Querible<PersistentShaped<SN>> & string)[]) =>
 		transaction((tx) =>
 			tx.query(
 				`CREATE INDEX IF NOT EXISTS ${this.name + columns.map((c) => capitalized(c)).join('') + 'Index'

@@ -1,6 +1,6 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
-import { PickPersistentObject, ShapeName } from 'shared/types/primitives'
+import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
 import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
@@ -8,11 +8,11 @@ import { Expand } from 'shared/utils'
 
 export class SelectQuery<
 	SN extends ShapeName,
-	SelectedColumn extends keyof ResultObject,
-	ResultObject = PickPersistentObject<SN>,
-	QueribleObject = Querible<ResultObject>,
+	SelectedColumn extends keyof Object,
+	Object = PersistentShaped<SN>,
+	QueribleObject = Querible<Object>,
 	QueribleColumn = keyof QueribleObject,
-> {
+	> {
 	readonly selectedColumns: SelectedColumn[] = []
 	readonly whereItems: WhereItem[][] = []
 	readonly orderItems: OrderItem<QueribleColumn>[] = []
@@ -26,30 +26,29 @@ export class SelectQuery<
 	private get sql(): Query {
 		const args = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
 		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
-				this.table
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table
 			}` +
 			(this.whereItems.length > 0
 				? ' WHERE ' +
-				  this.whereItems
-						.map((items) => {
-							return (
-								(items.length > 1 ? '(' : '') +
-								items
-									.map((i) => {
-										const string = i.key + ' ' + i.operator + ' '
-										if (i.operator.includes('BETWEEN')) return string + '? AND ?'
-										else if (i.operator.includes('IN'))
-											return string + '(' + i.value.map(() => '?').join(',') + ')'
-										else if (i.operator.includes('LIKE')) return string + '?'
-										else if (i.operator === 'IS') return string + i.value
-										else return string + '?'
-									})
-									.join(' OR ') +
-								(items.length > 1 ? ')' : '')
-							)
-						})
-						.join(' AND ')
+				this.whereItems
+					.map((items) => {
+						return (
+							(items.length > 1 ? '(' : '') +
+							items
+								.map((i) => {
+									const string = i.key + ' ' + i.operator + ' '
+									if (i.operator.includes('BETWEEN')) return string + '? AND ?'
+									else if (i.operator.includes('IN'))
+										return string + '(' + i.value.map(() => '?').join(',') + ')'
+									else if (i.operator.includes('LIKE')) return string + '?'
+									else if (i.operator === 'IS') return string + i.value
+									else return string + '?'
+								})
+								.join(' OR ') +
+							(items.length > 1 ? ')' : '')
+						)
+					})
+					.join(' AND ')
 				: '') +
 			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(',') : '')
 
@@ -61,10 +60,10 @@ export class SelectQuery<
 		O extends AllowedOperators<QueribleObject[K]>,
 		V extends QueribleObject[K],
 		Value = InferValue<QueribleObject, K, O, V>,
-	>(
-		key: K & string,
-		operator: O,
-		value: Value,
+		>(
+			key: K & string,
+			operator: O,
+			value: Value,
 	) => {
 		this.whereItems.push([{ key, operator, value }])
 		return {
@@ -80,10 +79,10 @@ export class SelectQuery<
 		O extends AllowedOperators<QueribleObject[K]>,
 		V extends QueribleObject[K],
 		Value = InferValue<QueribleObject, K, O, V>,
-	>(
-		key: K & string,
-		operator: O,
-		value: Value,
+		>(
+			key: K & string,
+			operator: O,
+			value: Value,
 	) => {
 		getLast(this.whereItems)?.push({ key, operator, value })
 		return {
@@ -98,10 +97,10 @@ export class SelectQuery<
 		O extends AllowedOperators<QueribleObject[K]>,
 		V extends QueribleObject[K],
 		Value = InferValue<QueribleObject, K, O, V>,
-	>(
-		key: K & string,
-		operator: O,
-		value: Value,
+		>(
+			key: K & string,
+			operator: O,
+			value: Value,
 	) => {
 		this.whereItems.push([{ key, operator, value }])
 		return {
@@ -116,14 +115,14 @@ export class SelectQuery<
 		return this
 	}
 
-	fetch = (): Promise<Expand<Pick<ResultObject, SelectedColumn>>[]> =>
+	fetch = (): Promise<Expand<Pick<Object, SelectedColumn>>[]> =>
 		transaction((tx, resolve) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args, resolve)
 		})
 }
 
-export class InsertQuery<SN extends ShapeName, O = PickPersistentObject<SN>> {
+export class InsertQuery<SN extends ShapeName, O = PersistentShaped<SN>> {
 	readonly table: SN
 	readonly objects: O[]
 
