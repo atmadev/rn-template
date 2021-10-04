@@ -10,8 +10,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 		.then(async (db) => {
 			const result = await db
 				.table('Profile')
-				.select('id', 'firstName', 'lastName')
-				.where('firstName', 'LIKE', 'j%')
+				.select()
 				.fetch()
 			console.log('result', result)
 			/*

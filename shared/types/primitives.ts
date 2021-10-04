@@ -47,9 +47,9 @@ type ShapedInternal<S extends Shape | Shape[]> = {
 	[K in keyof S]
 	: S[K] extends PrimitiveType ? PrimitiveTypeMap[S[K]] 					// string,   boolean,   number
 	: S[K] extends PrimitiveType[] ? PrimitiveTypeMap[S[K][number]][] // string[], boolean[], number[]
-	: S[K] extends ShapeItem ? Expand<ShapedItem<S[K]['type']>>
-	: S[K] extends Shape ? Expand<_Shaped<S[K]>>
-	: S[K] extends Shape[] ? Expand<_Shaped<S[K][number]>>[]
+	: S[K] extends ShapeItem ? ShapedItem<S[K]['type']>
+	: S[K] extends Shape ? _Shaped<S[K]>
+	: S[K] extends Shape[] ? _Shaped<S[K][number]>[]
 	: never
 }
 
@@ -58,9 +58,9 @@ type RequiredOnly<S extends Shape> = {
 }
 
 
-type _Shaped<S extends Shape | Shape[]> = Expand<
+type _Shaped<S extends Shape | Shape[]> =
 	Partial<ShapedInternal<S>> & (S extends Shape ? ShapedInternal<RequiredOnly<S>> : {})
->
+
 
 type _PersistentShaped<S extends Shape> = _Shaped<{
 	[K in keyof S as IsPersistent<S[K], K, never>]: S[K]
@@ -73,4 +73,6 @@ export type Shaped<SN extends ShapeName> = _Shaped<Shapes[SN]>
 export type PersistentShaped<SN extends ShapeName> = _PersistentShaped<Shapes[SN]>
 
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never
-export type StringKeys = { [key: string]: any }
+export type ExpandDeep<T> = T extends object
+	? T extends infer O ? { [K in keyof O]: ExpandDeep<O[K]> } : never
+	: T

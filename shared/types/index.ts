@@ -6,7 +6,7 @@
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs'
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Shaped } from './primitives'
+import { ExpandDeep, Shaped } from './primitives'
 
 export type RootStackParamList = {
 	Root: NavigatorScreenParams<RootTabParamList> | undefined
@@ -29,4 +29,4 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 	NativeStackScreenProps<RootStackParamList>
 >
 
-export type Profile = Shaped<'Profile'>
+export type Profile = ExpandDeep<Shaped<'Profile'>>

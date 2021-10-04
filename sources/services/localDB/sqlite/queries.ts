@@ -1,10 +1,9 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
-import { PersistentShaped, ShapeName } from 'shared/types/primitives'
+import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
 import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
 import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
-import { Expand } from 'shared/utils'
 
 export class SelectQuery<
 	SN extends ShapeName,
@@ -115,11 +114,30 @@ export class SelectQuery<
 		return this
 	}
 
-	fetch = (): Promise<Expand<Pick<Object, SelectedColumn>>[]> =>
-		transaction((tx, resolve) => {
+	fetch = async (): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
+		const objects = await transaction((tx, resolve) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args, resolve)
 		})
+
+		const objectKeys = mapKeys(this.table, (key, type, flags) => {
+			if (flags.includes('transient')
+				|| typeof type !== 'object'
+				|| (this.selectedColumns.length > 0 && !this.selectedColumns.includes(key as any))) return null
+			return key
+		})
+
+		if (objectKeys.length > 0) {
+			objects.forEach((o: any) =>
+				objectKeys.forEach(k => {
+					const value = o[k]
+					if (value) o[k] = JSON.parse(value)
+				})
+			)
+		}
+
+		return objects
+	}
 }
 
 export class InsertQuery<SN extends ShapeName, O = PersistentShaped<SN>> {
@@ -134,16 +152,16 @@ export class InsertQuery<SN extends ShapeName, O = PersistentShaped<SN>> {
 	private get sql(): Query {
 		const args: any[] = []
 		const sql =
-			`INSERT INTO ${this.table} VALUES ` +
+			`INSERT OR REPLACE INTO ${this.table} VALUES\n` +
 			this.objects
 				.map((o) => {
 					return (
 						'(' +
-						mapKeys(this.table, (key, _, flags) => {
+						mapKeys(this.table, (key, type, flags) => {
 							if (flags.includes('transient')) return null
 							// @ts-ignore
 							const value = o[key] ?? ''
-							args.push(value)
+							args.push(typeof type === 'object' ? JSON.stringify(value) : value)
 							return '?'
 						}).join(',') +
 						')'

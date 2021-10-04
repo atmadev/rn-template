@@ -85,7 +85,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
 	})
 
-	const dbSchemaHash = dbSchemaHashResult.value
+	const dbSchemaHash = dbSchemaHashResult?.value
 	console.log('dbSchemaHash', dbSchemaHash)
 
 	const currentShapes = pick(shapes, ...shapeNames)
@@ -125,8 +125,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 			indexColumns.forEach((i) =>
 				tx.query(
-					`CREATE INDEX IF NOT EXISTS ${
-						shapeName + capitalized(i) + 'Index'
+					`CREATE INDEX IF NOT EXISTS ${shapeName + capitalized(i) + 'Index'
 					} ON ${shapeName} (${i})`,
 				),
 			)
