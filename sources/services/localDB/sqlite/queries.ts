@@ -6,18 +6,18 @@ import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
 
 export class SelectQuery<
-	SN extends ShapeName,
+	TableName extends ShapeName,
 	SelectedColumn extends keyof Object,
-	Object = PersistentShaped<SN>,
+	Object = PersistentShaped<TableName>,
 	QueribleObject = Querible<Object>,
 	QueribleColumn = keyof QueribleObject,
-	> {
+> {
 	readonly selectedColumns: SelectedColumn[] = []
 	readonly whereItems: WhereItem[][] = []
 	readonly orderItems: OrderItem<QueribleColumn>[] = []
-	readonly table: SN
+	readonly table: TableName
 
-	constructor(table: SN, columns: SelectedColumn[]) {
+	constructor(table: TableName, columns: SelectedColumn[]) {
 		this.table = table
 		this.selectedColumns = columns
 	}
@@ -25,29 +25,30 @@ export class SelectQuery<
 	private get sql(): Query {
 		const args = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
 		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
+				this.table
 			}` +
 			(this.whereItems.length > 0
 				? ' WHERE ' +
-				this.whereItems
-					.map((items) => {
-						return (
-							(items.length > 1 ? '(' : '') +
-							items
-								.map((i) => {
-									const string = i.key + ' ' + i.operator + ' '
-									if (i.operator.includes('BETWEEN')) return string + '? AND ?'
-									else if (i.operator.includes('IN'))
-										return string + '(' + i.value.map(() => '?').join(',') + ')'
-									else if (i.operator.includes('LIKE')) return string + '?'
-									else if (i.operator === 'IS') return string + i.value
-									else return string + '?'
-								})
-								.join(' OR ') +
-							(items.length > 1 ? ')' : '')
-						)
-					})
-					.join(' AND ')
+				  this.whereItems
+						.map((items) => {
+							return (
+								(items.length > 1 ? '(' : '') +
+								items
+									.map((i) => {
+										const string = i.key + ' ' + i.operator + ' '
+										if (i.operator.includes('BETWEEN')) return string + '? AND ?'
+										else if (i.operator.includes('IN'))
+											return string + '(' + i.value.map(() => '?').join(',') + ')'
+										else if (i.operator.includes('LIKE')) return string + '?'
+										else if (i.operator === 'IS') return string + i.value
+										else return string + '?'
+									})
+									.join(' OR ') +
+								(items.length > 1 ? ')' : '')
+							)
+						})
+						.join(' AND ')
 				: '') +
 			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(',') : '')
 
@@ -55,14 +56,14 @@ export class SelectQuery<
 	}
 
 	where = <
-		K extends keyof QueribleObject,
-		O extends AllowedOperators<QueribleObject[K]>,
-		V extends QueribleObject[K],
-		Value = InferValue<QueribleObject, K, O, V>,
-		>(
-			key: K & string,
-			operator: O,
-			value: Value,
+		K extends keyof Querible<Object>,
+		O extends AllowedOperators<Querible<Object>[K]>,
+		V extends Querible<Object>[K],
+		Value = InferValue<Querible<Object>, K, O, V>,
+	>(
+		key: K & string,
+		operator: O,
+		value: Value,
 	) => {
 		this.whereItems.push([{ key, operator, value }])
 		return {
@@ -74,14 +75,14 @@ export class SelectQuery<
 	}
 
 	private orWhere = <
-		K extends keyof QueribleObject,
-		O extends AllowedOperators<QueribleObject[K]>,
-		V extends QueribleObject[K],
-		Value = InferValue<QueribleObject, K, O, V>,
-		>(
-			key: K & string,
-			operator: O,
-			value: Value,
+		K extends keyof Querible<Object>,
+		O extends AllowedOperators<Querible<Object>[K]>,
+		V extends Querible<Object>[K],
+		Value = InferValue<Querible<Object>, K, O, V>,
+	>(
+		key: K & string,
+		operator: O,
+		value: Value,
 	) => {
 		getLast(this.whereItems)?.push({ key, operator, value })
 		return {
@@ -92,14 +93,14 @@ export class SelectQuery<
 	}
 
 	private andWhere = <
-		K extends keyof QueribleObject,
-		O extends AllowedOperators<QueribleObject[K]>,
-		V extends QueribleObject[K],
-		Value = InferValue<QueribleObject, K, O, V>,
-		>(
-			key: K & string,
-			operator: O,
-			value: Value,
+		K extends keyof Querible<Object>,
+		O extends AllowedOperators<Querible<Object>[K]>,
+		V extends Querible<Object>[K],
+		Value = InferValue<Querible<Object>, K, O, V>,
+	>(
+		key: K & string,
+		operator: O,
+		value: Value,
 	) => {
 		this.whereItems.push([{ key, operator, value }])
 		return {
@@ -121,18 +122,21 @@ export class SelectQuery<
 		})
 
 		const objectKeys = mapKeys(this.table, (key, type, flags) => {
-			if (flags.includes('transient')
-				|| typeof type !== 'object'
-				|| (this.selectedColumns.length > 0 && !this.selectedColumns.includes(key as any))) return null
+			if (
+				flags.includes('transient') ||
+				typeof type !== 'object' ||
+				(this.selectedColumns.length > 0 && !this.selectedColumns.includes(key as any))
+			)
+				return null
 			return key
 		})
 
 		if (objectKeys.length > 0) {
 			objects.forEach((o: any) =>
-				objectKeys.forEach(k => {
+				objectKeys.forEach((k) => {
 					const value = o[k]
 					if (value) o[k] = JSON.parse(value)
-				})
+				}),
 			)
 		}
 
@@ -140,11 +144,11 @@ export class SelectQuery<
 	}
 }
 
-export class InsertQuery<SN extends ShapeName, O = PersistentShaped<SN>> {
-	readonly table: SN
-	readonly objects: O[]
+export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
+	readonly table: TableName
+	readonly objects: Object[]
 
-	constructor(table: SN, objects: O[]) {
+	constructor(table: TableName, objects: Object[]) {
 		this.table = table
 		this.objects = objects
 	}

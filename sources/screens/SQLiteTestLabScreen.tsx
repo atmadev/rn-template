@@ -8,10 +8,7 @@ import { setupDBForShapes } from 'services/localDB/sqlite'
 export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 	setupDBForShapes('Profile', 'Country')
 		.then(async (db) => {
-			const result = await db
-				.table('Profile')
-				.select()
-				.fetch()
+			const result = await db.table('Profile').select().fetch()
 			console.log('result', result)
 			/*
 			db.table('Profile')

@@ -19,30 +19,31 @@ export const setupDBForShapes = async <UsedShapeNames extends ShapeName>(
 	return { tables, table: <Name extends UsedShapeNames>(name: Name) => tables[name] }
 }
 
-class Table<SN extends ShapeName> {
-	readonly name: SN
-	constructor(name: SN) {
+class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
+	readonly name: TableName
+	constructor(name: TableName) {
 		this.name = name
 	}
 
-	insert = (...objects: PersistentShaped<SN>[]) => {
+	insert = (...objects: Object[]) => {
 		const query = new InsertQuery(this.name, objects)
 		return query.perform()
 	}
 
-	select = <SelectedColumn extends keyof PersistentShaped<SN>>(
+	select = <SelectedColumn extends keyof PersistentShaped<TableName>>(
 		...columns: SelectedColumn[]
 	) => {
 		return new SelectQuery(this.name, columns)
 	}
 
-	update = () => { }
-	delete = () => { }
+	update = () => {}
+	delete = () => {}
 
-	createIndex = async (...columns: (keyof Querible<PersistentShaped<SN>> & string)[]) =>
+	createIndex = async (...columns: (keyof Querible<PersistentShaped<TableName>> & string)[]) =>
 		transaction((tx) =>
 			tx.query(
-				`CREATE INDEX IF NOT EXISTS ${this.name + columns.map((c) => capitalized(c)).join('') + 'Index'
+				`CREATE INDEX IF NOT EXISTS ${
+					this.name + columns.map((c) => capitalized(c)).join('') + 'Index'
 				} ON ${this.name} (${columns.join(',')})`,
 			),
 		)
