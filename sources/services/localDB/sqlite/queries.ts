@@ -1,7 +1,7 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
-import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
+import { Querible, WhereItem, OrderItem, AllowedPredicates, InferValue } from './types'
 import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
 
@@ -220,12 +220,12 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 								(items.length > 1 ? '(' : '') +
 								items
 									.map((i) => {
-										const expression = i.key + ' ' + i.operator + ' '
-										if (i.operator.includes('BETWEEN')) return expression + '? AND ?'
-										else if (i.operator.includes('IN'))
+										const expression = i.key + ' ' + i.predicate + ' '
+										if (i.predicate.includes('BETWEEN')) return expression + '? AND ?'
+										else if (i.predicate.includes('IN'))
 											return expression + '(' + i.value.map(() => '?').join(',') + ')'
-										else if (i.operator.includes('LIKE')) return expression + '?'
-										else if (i.operator === 'IS') return expression + i.value
+										else if (i.predicate.includes('LIKE')) return expression + '?'
+										else if (i.predicate === 'IS') return expression + i.value
 										else return expression + '?'
 									})
 									.join(' OR ') +
@@ -240,12 +240,12 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 		this.actions = actions
 	}
 
-	where = <K extends keyof Querible<Object>, O extends AllowedOperators<Querible<Object>[K]>>(
+	where = <K extends keyof Querible<Object>, P extends AllowedPredicates<Querible<Object>[K]>>(
 		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		predicate: P,
+		value: InferValue<Querible<Object>, K, P>,
 	) => {
-		this.items.push([{ key: key as string, operator, value }])
+		this.items.push([{ key: key as string, predicate, value }])
 		return {
 			where: this.where,
 			and: this.andWhere,
@@ -256,13 +256,13 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 
 	protected orWhere = <
 		K extends keyof Querible<Object>,
-		O extends AllowedOperators<Querible<Object>[K]>,
+		P extends AllowedPredicates<Querible<Object>[K]>,
 	>(
 		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		predicate: P,
+		value: InferValue<Querible<Object>, K, P>,
 	) => {
-		getLast(this.items)?.push({ key: key as string, operator, value })
+		getLast(this.items)?.push({ key: key as string, predicate, value })
 		return {
 			or: this.orWhere,
 			...this.actions,
@@ -271,13 +271,13 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 
 	protected andWhere = <
 		K extends keyof Querible<Object>,
-		O extends AllowedOperators<Querible<Object>[K]>,
+		P extends AllowedPredicates<Querible<Object>[K]>,
 	>(
 		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		predicate: P,
+		value: InferValue<Querible<Object>, K, P>,
 	) => {
-		this.items.push([{ key: key as string, operator, value }])
+		this.items.push([{ key: key as string, predicate, value }])
 		return {
 			and: this.andWhere,
 			...this.actions,
