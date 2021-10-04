@@ -4,7 +4,7 @@ import { ShapeName } from 'shared/types/primitives'
 import { shapes } from 'shared/types/shapes'
 import { mapKeys } from 'shared/types/utils'
 
-const db = openDatabase('db')
+const db = openDatabase('dbV3')
 
 const wrapTansaction = (tx: SQLTransaction) => ({
 	query(
@@ -13,12 +13,20 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		success?: (result: any[]) => void,
 		error?: (error: SQLError) => void,
 	) {
-		console.log('[SQL]:', query, args && args.length > 0 ? '\nArgs: ' + args.join(', ') : '')
-
+		// console.log('[SQL]:', query, args && args.length > 0 ? '\nArgs: ' + args.join(', ') : '')
+		console.log(
+			'[SQL]:',
+			query.length > 100 ? query.substr(0, 100) + '...' : query,
+			'args count',
+			args?.length ?? 0,
+		)
+		const start = Date.now()
 		tx.executeSql(
 			query,
 			args,
 			(_, result) => {
+				console.log('SQL time', Date.now() - start)
+
 				// @ts-ignore
 				const array = result.rows._array
 				success?.(array)
@@ -47,7 +55,7 @@ export const transaction = (
 		)
 	})
 /*
-const pragmas = (funcs: string[]) =>
+const pragma = (...funcs: string[]) =>
 	new Promise<any[]>((resolve, reject) => {
 		db.exec(
 			funcs.map((f) => {
@@ -75,8 +83,8 @@ const pragmas = (funcs: string[]) =>
 				}
 			},
 		)
-	}) */
-
+	})
+*/
 export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	...shapeNames: UsedShapeNames[]
 ) => {
@@ -86,16 +94,18 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	})
 
 	const dbSchemaHash = dbSchemaHashResult?.value
-	console.log('dbSchemaHash', dbSchemaHash)
+	// console.log('dbSchemaHash', dbSchemaHash)
 
 	const currentShapes = pick(shapes, ...shapeNames)
 
 	const currentSchemaHash = hash(JSON.stringify(currentShapes))
-	console.log('currentSchemaHash', currentSchemaHash)
+	// console.log('currentSchemaHash', currentSchemaHash)
 
 	const schemaSetUpNeeded = !dbSchemaHash || dbSchemaHash !== currentSchemaHash
 
-	console.log('schemaSetUpNeeded', schemaSetUpNeeded)
+	// console.log('schemaSetUpNeeded', schemaSetUpNeeded)
+
+	if (!schemaSetUpNeeded) return
 
 	// const tableInfoPragmas = await pragmas(shapeNames.map((sn) => `table_info(${sn});'`))
 
@@ -125,7 +135,8 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 			indexColumns.forEach((i) =>
 				tx.query(
-					`CREATE INDEX IF NOT EXISTS ${shapeName + capitalized(i) + 'Index'
+					`CREATE INDEX IF NOT EXISTS ${
+						shapeName + capitalized(i) + 'Index'
 					} ON ${shapeName} (${i})`,
 				),
 			)
@@ -143,12 +154,12 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 		tx.query(`INSERT OR REPLACE INTO _Config VALUES ('schemaHash', ${currentSchemaHash})`)
 	})
 
-	console.log('setUpSchema success')
-
+	// console.log('setUpSchema success')
+	/*
 	const config = await transaction((tx, resolve) => {
 		tx.query('SELECT * FROM _Config', [], resolve)
 	})
-	console.log('config', config)
+	 console.log('config', config) */
 
 	// Validate unique indexes
 	// Remove uneeded indexes

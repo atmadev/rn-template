@@ -4,43 +4,20 @@ import { StyleSheet } from 'react-native'
 import { Text, View } from 'components/Themed'
 import { RootTabScreenProps } from 'shared/types'
 import { setupDBForShapes } from 'services/localDB/sqlite'
+// import stubProfiles from './stubProfiles.json'
 
 export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 	setupDBForShapes('Profile', 'Country')
 		.then(async (db) => {
-			const result = await db.table('Profile').select().fetch()
-			console.log('result', result)
+			// await db.table('Profile').createIndex('firstName', 'lastName')
+			// await db.table('Profile').delete().run()
+			// await db.table('Profile').insert(...stubProfiles)
+			// const result = await db.table('Profile').select().run()
+			// console.log('result count', result.length)
 			/*
 			db.table('Profile')
 				.insert(
-					{
-						id: '1',
-						firstName: 'John',
-						lastName: 'Smith',
-						createdAt: Date.now(),
-						numbers: [1, 2],
-						male: true,
-						age: 12,
-						countryId: '2',
-						settings: {
-							pushNotification: true,
-						},
-						interests: ['Yoga', 'Meditation', 'Prasadam'],
-					},
-					{
-						id: '2',
-						firstName: 'Valera',
-						lastName: 'Ivanov',
-						createdAt: Date.now(),
-						numbers: [3, 4],
-						male: true,
-						age: 13,
-						countryId: '1',
-						settings: {
-							pushNotification: false,
-						},
-						interests: ['Sankirtanam', 'Vishnu Smaranam', 'Prasada Sevanam'],
-					},
+					,
 				)
 				.catch((e) => console.log('insert error', e))
 				*/

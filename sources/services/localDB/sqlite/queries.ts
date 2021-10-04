@@ -5,32 +5,17 @@ import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './
 import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
 
-export class SelectQuery<
+abstract class WhereQuery<
 	TableName extends ShapeName,
-	SelectedColumn extends keyof Object,
+	Result,
 	Object = PersistentShaped<TableName>,
-	QueribleObject = Querible<Object>,
-	QueribleColumn = keyof QueribleObject,
 > {
-	readonly selectedColumns: SelectedColumn[] = []
-	readonly whereItems: WhereItem[][] = []
-	readonly orderItems: OrderItem<QueribleColumn>[] = []
-	readonly table: TableName
+	protected readonly whereItems: WhereItem[][] = []
 
-	constructor(table: TableName, columns: SelectedColumn[]) {
-		this.table = table
-		this.selectedColumns = columns
-	}
-
-	private get sql(): Query {
-		const args = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
-		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
-				this.table
-			}` +
-			(this.whereItems.length > 0
-				? ' WHERE ' +
-				  this.whereItems
+	protected get whereClause() {
+		return this.whereItems.length > 0
+			? ' WHERE ' +
+					this.whereItems
 						.map((items) => {
 							return (
 								(items.length > 1 ? '(' : '') +
@@ -49,10 +34,14 @@ export class SelectQuery<
 							)
 						})
 						.join(' AND ')
-				: '') +
-			(this.orderItems.length > 0 ? ' ORDER BY ' + this.orderItems.join(',') : '')
+			: ''
+	}
 
-		return { sql, args }
+	get orItems() {
+		return {
+			or: this.orWhere,
+			run: this.run,
+		}
 	}
 
 	where = <
@@ -69,12 +58,11 @@ export class SelectQuery<
 		return {
 			and: this.andWhere,
 			or: this.orWhere,
-			orderBy: this.orderBy,
-			fetch: this.fetch,
+			run: this.run,
 		}
 	}
 
-	private orWhere = <
+	protected orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
 		V extends Querible<Object>[K],
@@ -85,14 +73,10 @@ export class SelectQuery<
 		value: Value,
 	) => {
 		getLast(this.whereItems)?.push({ key, operator, value })
-		return {
-			or: this.orWhere,
-			orderBy: this.orderBy,
-			fetch: this.fetch,
-		}
+		return this.orItems
 	}
 
-	private andWhere = <
+	protected andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
 		V extends Querible<Object>[K],
@@ -105,9 +89,46 @@ export class SelectQuery<
 		this.whereItems.push([{ key, operator, value }])
 		return {
 			and: this.andWhere,
-			orderBy: this.orderBy,
-			fetch: this.fetch,
+			run: this.run,
 		}
+	}
+
+	protected abstract get sql(): Query
+
+	run = async (): Promise<Result> =>
+		transaction((tx) => {
+			const { sql, args } = this.sql
+			tx.query(sql, args)
+		})
+}
+
+export class SelectQuery<
+	TableName extends ShapeName,
+	SelectedColumn extends keyof Object,
+	Object = PersistentShaped<TableName>,
+	QueribleObject = Querible<Object>,
+	QueribleColumn = keyof QueribleObject,
+> extends WhereQuery<TableName, Expand<Pick<Object, SelectedColumn>>[]> {
+	readonly selectedColumns: SelectedColumn[] = []
+	readonly orderItems: OrderItem<QueribleColumn>[] = []
+	readonly table: TableName
+
+	constructor(table: TableName, columns: SelectedColumn[]) {
+		super()
+		this.table = table
+		this.selectedColumns = columns
+	}
+
+	get sql() {
+		const args = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
+		const sql =
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
+				this.table
+			}` +
+			this.whereClause +
+			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '')
+
+		return { sql, args }
 	}
 
 	orderBy = (...keys: OrderItem<QueribleColumn>[]) => {
@@ -115,7 +136,7 @@ export class SelectQuery<
 		return this
 	}
 
-	fetch = async (): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
+	run = async () => {
 		const objects = await transaction((tx, resolve) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args, resolve)
@@ -176,9 +197,59 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 		return { sql, args }
 	}
 
-	perform = async (): Promise<void> =>
+	run = async (): Promise<void> =>
 		transaction((tx) => {
 			const { sql, args } = this.sql
+
 			tx.query(sql, args)
 		})
+}
+
+export class UpdateQuery<
+	TableName extends ShapeName,
+	Object = Partial<PersistentShaped<TableName>>,
+> extends WhereQuery<TableName, void> {
+	readonly table: TableName
+	readonly object: Object
+
+	constructor(table: TableName, object: Object) {
+		super()
+		this.table = table
+		this.object = object
+	}
+
+	get sql() {
+		const args: any[] = []
+		const sql =
+			'UPDATE ' +
+			this.table +
+			' SET ' +
+			Object.entries(this.object)
+				.map(([k, v]) => {
+					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
+					return k + ' = ?'
+				})
+				.join(', ') +
+			this.whereClause
+
+		args.push(...this.whereItems.flatMap((items) => items.flatMap((i) => i.value)))
+
+		return { sql, args }
+	}
+}
+
+export class DeleteQuery<TableName extends ShapeName> extends WhereQuery<TableName, void> {
+	readonly table: TableName
+
+	constructor(table: TableName) {
+		super()
+		this.table = table
+	}
+
+	get sql() {
+		const args: any[] = this.whereItems.flatMap((items) => items.flatMap((i) => i.value))
+		const sql = 'DELETE FROM ' + this.table + this.whereClause
+
+		return { sql, args }
+	}
 }

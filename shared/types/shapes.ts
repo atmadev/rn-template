@@ -33,6 +33,7 @@ const Profile = shape({
 	settings: {
 		pushNotification: boolean,
 	},
+	bio: string,
 })
 
 export const shapes = { Country, Profile }
