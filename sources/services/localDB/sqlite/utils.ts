@@ -14,12 +14,7 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		error?: (error: SQLError) => void,
 	) {
 		// console.log('[SQL]:', query, args && args.length > 0 ? '\nArgs: ' + args.join(', ') : '')
-		console.log(
-			'[SQL]:',
-			query.length > 100 ? query.substr(0, 100) + '...' : query,
-			'args count',
-			args?.length ?? 0,
-		)
+		console.log('[SQL]:', query.length > 150 ? query.substr(0, 150) + '...' : query, 'args', args)
 		const start = Date.now()
 		tx.executeSql(
 			query,

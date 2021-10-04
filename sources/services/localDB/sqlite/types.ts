@@ -10,7 +10,7 @@ export type Operator = BasicOperator | InOperator | LikeOperator | BetweenOperat
 export type ColumnTypes = number | string | boolean
 
 export type Querible<T> = {
-	[P in keyof T as T[P] extends ColumnTypes | undefined ? P : never]: T[P]
+	[P in keyof T as T[P] extends ColumnTypes | undefined ? P : never]-?: T[P]
 }
 
 export type WhereItem = {
@@ -22,15 +22,17 @@ export type WhereItem = {
 export type OrderItem<Key> = Key | `${string & Key} DESC`
 
 // prettier-ignore
-export type InferValue<T, K extends keyof T, O extends Operator, V extends T[K]> =
+export type InferValue<T, K extends keyof T, O extends Operator, V = T[K]> =
 	O extends InOperator ? V[]
 	: O extends BetweenOperator ? [V, V]
 	: O extends LikeOperator ? string
 	: O extends IsOperator ? IsValue
 	: V
 
-export type AllowedOperators<T> = T extends string
-	? Operator
+// prettier-ignore
+export type AllowedOperators<T> = 
+		T extends string  ? Operator
+	: T extends boolean ? IsOperator | '='
 	: BasicOperator | BetweenOperator | InOperator | IsOperator
 
 export type SQLiteRowInfo = {

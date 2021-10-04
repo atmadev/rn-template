@@ -12,15 +12,19 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 			// await db.table('Profile').createIndex('firstName', 'lastName')
 			// await db.table('Profile').delete().run()
 			// await db.table('Profile').insert(...stubProfiles)
-			// const result = await db.table('Profile').select().run()
-			// console.log('result count', result.length)
-			/*
-			db.table('Profile')
-				.insert(
-					,
-				)
-				.catch((e) => console.log('insert error', e))
-				*/
+
+			const q = db
+				.table('Profile')
+				.select('firstName', 'lastName', 'age', 'male')
+				.where('bio', 'IS', 'NOT NULL')
+				.where('male', '=', true)
+				.where('age', 'BETWEEN', [18, 25])
+				.where('countryId', 'LIKE', '615ac07f%')
+				.where('firstName', 'IN', ['Jannie', 'Stella', 'Johnson', 'Fowler'])
+
+			const result = await q.run()
+			console.log('result count', result.length)
+			console.log('result', result)
 		})
 		.catch((e) => console.log('Setup Shapes error', e))
 
