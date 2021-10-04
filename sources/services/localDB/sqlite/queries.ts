@@ -217,7 +217,7 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 					this.items
 						.map((items) => {
 							return (
-								'(' +
+								(items.length > 1 ? '(' : '') +
 								items
 									.map((i) => {
 										const expression = i.key + ' ' + i.operator + ' '
@@ -229,7 +229,7 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 										else return expression + '?'
 									})
 									.join(' OR ') +
-								')'
+								(items.length > 1 ? ')' : '')
 							)
 						})
 						.join(' AND ')

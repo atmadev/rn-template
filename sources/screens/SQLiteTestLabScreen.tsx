@@ -13,18 +13,21 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 			// await db.table('Profile').delete().run()
 			// await db.table('Profile').insert(...stubProfiles)
 
-			const q = db
-				.table('Profile')
-				.select('firstName', 'lastName', 'age', 'male')
-				.where('bio', 'IS', 'NOT NULL')
-				.where('male', '=', true)
-				.where('age', 'BETWEEN', [18, 25])
-				.where('countryId', 'LIKE', '615ac07f%')
-				.where('firstName', 'IN', ['Jannie', 'Stella', 'Johnson', 'Fowler'])
+			// TODO: prepare good stub data with all possible types
+			// to test all possible operations in all possible type/operator combinations
+
+			const q = db.table('Profile').select('firstName', 'lastName', 'age', 'male')
+
+			q.where('bio', 'IS', 'NOT NULL')
+				.and('id', '<>', '23')
+				.and('age', 'BETWEEN', [18, 25])
+				.and('countryId', 'LIKE', '615ac07f%')
+
+			q.where('firstName', 'LIKE', 's%').or('lastName', 'LIKE', 's%')
 
 			const result = await q.run()
 			console.log('result count', result.length)
-			console.log('result', result)
+			// console.log('result', result)
 		})
 		.catch((e) => console.log('Setup Shapes error', e))
 
