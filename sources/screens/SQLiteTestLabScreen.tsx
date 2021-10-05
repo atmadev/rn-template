@@ -16,14 +16,19 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 			// TODO: prepare good stub data with all possible types
 			// to test all possible operations in all possible type/operator combinations
 
-			const q = db.table('Profile').select('firstName', 'lastName', 'age', 'male')
+			const profiles = db.tables.Profile
+
+			const searchString = 's'
+
+			const q = profiles.select('firstName', 'lastName', 'age', 'male')
 
 			q.where('bio', 'IS', 'NOT NULL')
 				.and('id', '<>', '23')
 				.and('age', 'BETWEEN', [18, 25])
 				.and('countryId', 'LIKE', '615ac07f%')
 
-			q.where('firstName', 'LIKE', 's%').or('lastName', 'LIKE', 's%')
+			if (searchString)
+				q.where('firstName', 'LIKE', `${searchString}%`).or('lastName', 'LIKE', `${searchString}%`)
 
 			const result = await q.run()
 			console.log('result count', result.length)

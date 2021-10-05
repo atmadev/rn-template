@@ -16,24 +16,21 @@ export class SelectQuery<
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
 
-	private readonly whereEngine: WhereEngine<TableName, typeof this.actions>
-
-	where: typeof this.whereEngine.where
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
 		this.table = table
 		this.selectedColumns = columns
-		this.whereEngine = new WhereEngine(this.actions)
-		this.where = this.whereEngine.where
 	}
 
 	private get sql() {
-		const args = this.whereEngine.args
+		const args = this.whereBuilder.args
 		const sql =
 			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
 				this.table
 			}` +
-			this.whereEngine.clause +
+			this.whereBuilder.clause +
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '')
 
 		return { sql, args }
@@ -69,14 +66,10 @@ export class SelectQuery<
 			return key
 		})
 
-		if (objectKeys.length > 0) {
+		if (objectKeys.length > 0)
 			objects.forEach((o: any) =>
-				objectKeys.forEach((k) => {
-					const value = o[k]
-					if (value) o[k] = JSON.parse(value)
-				}),
+				objectKeys.forEach((k) => (o[k] ? (o[k] = JSON.parse(o[k])) : null)),
 			)
-		}
 
 		console.log('Mapping time', Date.now() - start)
 
@@ -129,14 +122,13 @@ export class UpdateQuery<
 > {
 	readonly table: TableName
 	readonly object: Object
-	private readonly whereEngine: WhereEngine<TableName, typeof this.actions>
-	where: typeof this.whereEngine.where
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 
 	constructor(table: TableName, object: Object) {
 		this.table = table
 		this.object = object
-		this.whereEngine = new WhereEngine(this.actions)
-		this.where = this.whereEngine.where
 	}
 
 	get sql() {
@@ -151,9 +143,9 @@ export class UpdateQuery<
 					return k + ' = ?'
 				})
 				.join(', ') +
-			this.whereEngine.clause
+			this.whereBuilder.clause
 
-		args.push(...this.whereEngine.args)
+		args.push(...this.whereBuilder.args)
 
 		return { sql, args }
 	}
@@ -173,18 +165,17 @@ export class UpdateQuery<
 
 export class DeleteQuery<TableName extends ShapeName> {
 	readonly table: TableName
-	private readonly whereEngine: WhereEngine<TableName, typeof this.actions>
-	where: typeof this.whereEngine.where
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 
 	constructor(table: TableName) {
 		this.table = table
-		this.whereEngine = new WhereEngine(this.actions)
-		this.where = this.whereEngine.where
 	}
 
 	get sql() {
-		const args: any[] = this.whereEngine.args
-		const sql = 'DELETE FROM ' + this.table + this.whereEngine.clause
+		const args: any[] = this.whereBuilder.args
+		const sql = 'DELETE FROM ' + this.table + this.whereBuilder.clause
 
 		return { sql, args }
 	}
@@ -202,7 +193,7 @@ export class DeleteQuery<TableName extends ShapeName> {
 		})
 }
 
-class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShaped<TableName>> {
+class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShaped<TableName>> {
 	readonly items: WhereItem[][] = []
 	private readonly actions: Actions
 	get args() {
@@ -264,6 +255,7 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 	) => {
 		getLast(this.items)?.push({ key: key as string, predicate, value })
 		return {
+			where: this.where,
 			or: this.orWhere,
 			...this.actions,
 		}
@@ -279,6 +271,7 @@ class WhereEngine<TableName extends ShapeName, Actions, Object = PersistentShape
 	) => {
 		this.items.push([{ key: key as string, predicate, value }])
 		return {
+			where: this.where,
 			and: this.andWhere,
 			...this.actions,
 		}

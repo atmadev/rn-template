@@ -31,14 +31,14 @@ export type InferValue<T, K extends keyof T, P extends Predicate, V = Exclude<T[
 	: P extends IsPredicate ? IsValue
 	: V
 
-type HasType<T, S, YES, NO> = Extract<T, S> extends never ? NO : YES
+type MapExtract<T, S, MAP> = Extract<T, S> extends never ? never : MAP
 
 // prettier-ignore
 export type AllowedPredicates<T> =
-  	HasType<T, undefined, IsPredicate, never> 
-	| HasType<T, string, BasicPredicate | LikePredicate, never> 
-	| HasType<T, boolean, '=', never> 
-	| HasType<T, number, BasicPredicate, never>
+  	MapExtract<T, undefined, IsPredicate> 
+	| MapExtract<T, string, BasicPredicate | LikePredicate> 
+	| MapExtract<T, boolean, '='> 
+	| MapExtract<T, number, BasicPredicate>
 
 export type SQLiteRowInfo = {
 	cid: number
