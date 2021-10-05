@@ -14,13 +14,17 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		error?: (error: SQLError) => void,
 	) {
 		// console.log('[SQL]:', query, args && args.length > 0 ? '\nArgs: ' + args.join(', ') : '')
-		console.log('[SQL]:', query.length > 200 ? query.substr(0, 200) + '...' : query, 'args', args)
-		const start = Date.now()
+		console.log(
+			'[SQL]:',
+			query.length > 200 ? query.substr(0, 200) + '...' : query,
+			args && args.length > 0 ? 'args ' + args : '',
+		)
+		// const start = Date.now()
 		tx.executeSql(
 			query,
 			args,
 			(_, result) => {
-				console.log('SQL time', Date.now() - start)
+				// console.log('SQL time', Date.now() - start)
 
 				// @ts-ignore
 				const array = result.rows._array
@@ -84,6 +88,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	...shapeNames: UsedShapeNames[]
 ) => {
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
+		// tx.query('SELECT sqlite_version()', undefined, log)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key UNIQUE NOT NULL, value NOT NULL)')
 		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
 	})
@@ -160,4 +165,9 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	// Remove uneeded indexes
 	// validate are all fields presented in the SQLite
 	// console.log('infos', tableInfos)
+}
+
+// eslint-disable-next-line
+const log = (result: any[]) => {
+	result.forEach((r) => Object.entries(r).forEach((e) => console.log(...e)))
 }
