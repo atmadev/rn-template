@@ -1,7 +1,7 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
-import { Querible, WhereItem, OrderItem, AllowedPredicates, InferValue } from './types'
+import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
 import { transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
 
@@ -15,9 +15,6 @@ export class SelectQuery<
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
-
-	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
-	where = this.whereBuilder.where
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
 		this.table = table
@@ -34,13 +31,6 @@ export class SelectQuery<
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '')
 
 		return { sql, args }
-	}
-
-	private get actions() {
-		return {
-			run: this.run,
-			orderBy: this.orderBy,
-		}
 	}
 
 	orderBy = (...keys: OrderItem<QueribleColumn>[]) => {
@@ -75,6 +65,14 @@ export class SelectQuery<
 
 		return objects
 	}
+
+	private actions = {
+		run: this.run,
+		orderBy: this.orderBy,
+	}
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 }
 
 export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
@@ -123,9 +121,6 @@ export class UpdateQuery<
 	readonly table: TableName
 	readonly object: Object
 
-	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
-	where = this.whereBuilder.where
-
 	constructor(table: TableName, object: Object) {
 		this.table = table
 		this.object = object
@@ -150,24 +145,22 @@ export class UpdateQuery<
 		return { sql, args }
 	}
 
-	private get actions() {
-		return {
-			run: this.run,
-		}
-	}
-
 	run = async (): Promise<void> =>
 		transaction((tx) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args)
 		})
+
+	private actions = {
+		run: this.run,
+	}
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 }
 
 export class DeleteQuery<TableName extends ShapeName> {
 	readonly table: TableName
-
-	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
-	where = this.whereBuilder.where
 
 	constructor(table: TableName) {
 		this.table = table
@@ -180,17 +173,18 @@ export class DeleteQuery<TableName extends ShapeName> {
 		return { sql, args }
 	}
 
-	private get actions() {
-		return {
-			run: this.run,
-		}
-	}
-
 	run = async (): Promise<void> =>
 		transaction((tx) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args)
 		})
+
+	private actions = {
+		run: this.run,
+	}
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
 }
 
 class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShaped<TableName>> {
@@ -211,12 +205,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 								(items.length > 1 ? '(' : '') +
 								items
 									.map((i) => {
-										const expression = i.key + ' ' + i.predicate + ' '
-										if (i.predicate.includes('BETWEEN')) return expression + '? AND ?'
-										else if (i.predicate.includes('IN'))
+										const expression = i.key + ' ' + i.operator + ' '
+										if (i.operator.includes('BETWEEN')) return expression + '? AND ?'
+										else if (i.operator.includes('IN'))
 											return expression + '(' + i.value.map(() => '?').join(',') + ')'
-										else if (i.predicate.includes('LIKE')) return expression + '?'
-										else if (i.predicate === 'IS') return expression + i.value
+										else if (i.operator.includes('LIKE')) return expression + '?'
+										else if (i.operator === 'IS') return expression + i.value
 										else return expression + '?'
 									})
 									.join(' OR ') +
@@ -231,12 +225,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		this.actions = actions
 	}
 
-	where = <K extends keyof Querible<Object>, P extends AllowedPredicates<Querible<Object>[K]>>(
+	where = <K extends keyof Querible<Object>, O extends AllowedOperators<Querible<Object>[K]>>(
 		key: K,
-		predicate: P,
-		value: InferValue<Querible<Object>, K, P>,
+		operator: O,
+		value: InferValue<Querible<Object>, K, O>,
 	) => {
-		this.items.push([{ key: key as string, predicate, value }])
+		this.items.push([{ key: key as string, operator, value }])
 		return {
 			where: this.where,
 			and: this.andWhere,
@@ -247,13 +241,13 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	protected orWhere = <
 		K extends keyof Querible<Object>,
-		P extends AllowedPredicates<Querible<Object>[K]>,
+		O extends AllowedOperators<Querible<Object>[K]>,
 	>(
 		key: K,
-		predicate: P,
-		value: InferValue<Querible<Object>, K, P>,
+		operator: O,
+		value: InferValue<Querible<Object>, K, O>,
 	) => {
-		getLast(this.items)?.push({ key: key as string, predicate, value })
+		getLast(this.items)?.push({ key: key as string, operator, value })
 		return {
 			where: this.where,
 			or: this.orWhere,
@@ -263,13 +257,13 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	protected andWhere = <
 		K extends keyof Querible<Object>,
-		P extends AllowedPredicates<Querible<Object>[K]>,
+		O extends AllowedOperators<Querible<Object>[K]>,
 	>(
 		key: K,
-		predicate: P,
-		value: InferValue<Querible<Object>, K, P>,
+		operator: O,
+		value: InferValue<Querible<Object>, K, O>,
 	) => {
-		this.items.push([{ key: key as string, predicate, value }])
+		this.items.push([{ key: key as string, operator, value }])
 		return {
 			where: this.where,
 			and: this.andWhere,

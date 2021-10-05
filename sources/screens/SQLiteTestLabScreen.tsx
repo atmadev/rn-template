@@ -15,12 +15,11 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 
 			// TODO: prepare good stub data with all possible types
 			// to test all possible operations in all possible type/operator combinations
-
 			const profiles = db.tables.Profile
 
 			const searchString = 's'
 
-			const q = profiles.select('firstName', 'lastName', 'age', 'male')
+			const q = profiles.select('id', 'firstName', 'lastName', 'bio') //
 
 			q.where('bio', 'IS', 'NOT NULL')
 				.and('id', '<>', '23')

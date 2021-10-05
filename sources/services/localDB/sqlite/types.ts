@@ -1,14 +1,14 @@
 type Notted<T extends string> = T | `NOT ${T}`
 
-type ComparsionPredicate = '=' | '>' | '<' | '>=' | '<=' | '<>'
-type BetweenPredicate = Notted<'BETWEEN'>
-type InPredicate = Notted<'IN'>
-type RangePredicate = BetweenPredicate | InPredicate
-type BasicPredicate = ComparsionPredicate | RangePredicate
-type LikePredicate = Notted<'LIKE'>
-type IsPredicate = 'IS'
+type ComparsionOperator = '=' | '>' | '<' | '>=' | '<=' | '<>'
+type BetweenOperator = Notted<'BETWEEN'>
+type InOperator = Notted<'IN'>
+type RangeOperator = BetweenOperator | InOperator
+type BasicOperator = ComparsionOperator | RangeOperator
+type LikeOperator = Notted<'LIKE'>
+type IsOperator = 'IS'
 type IsValue = Notted<'NULL'>
-type Predicate = ComparsionPredicate | InPredicate | LikePredicate | BetweenPredicate | IsPredicate
+type Operator = ComparsionOperator | InOperator | LikeOperator | BetweenOperator | IsOperator
 export type ColumnTypes = number | string | boolean
 
 export type Querible<T> = {
@@ -17,28 +17,28 @@ export type Querible<T> = {
 
 export type WhereItem = {
 	key: string
-	predicate: Predicate
+	operator: Operator
 	value: any
 }
 
 export type OrderItem<Key> = Key | `${string & Key} DESC`
 
 // prettier-ignore
-export type InferValue<T, K extends keyof T, P extends Predicate, V = Exclude<T[K], undefined>> =
-	P extends InPredicate ? V[]
-	: P extends BetweenPredicate ? [V, V]
-	: P extends LikePredicate ? string
-	: P extends IsPredicate ? IsValue
+export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K], undefined>> =
+	O extends InOperator ? V[]
+	: O extends BetweenOperator ? [V, V]
+	: O extends LikeOperator ? string
+	: O extends IsOperator ? IsValue
 	: V
 
 type MapExtract<T, S, MAP> = Extract<T, S> extends never ? never : MAP
 
 // prettier-ignore
-export type AllowedPredicates<T> =
-  	MapExtract<T, undefined, IsPredicate> 
-	| MapExtract<T, string, BasicPredicate | LikePredicate> 
+export type AllowedOperators<T> =
+  	MapExtract<T, undefined, IsOperator> 
+	| MapExtract<T, string, BasicOperator | LikeOperator> 
 	| MapExtract<T, boolean, '='> 
-	| MapExtract<T, number, BasicPredicate>
+	| MapExtract<T, number, BasicOperator>
 
 export type SQLiteRowInfo = {
 	cid: number
