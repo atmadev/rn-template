@@ -238,7 +238,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		}
 	}
 
-	protected orWhere = <
+	private orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
 		>(
@@ -254,7 +254,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		}
 	}
 
-	protected andWhere = <
+	private andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
 		>(
