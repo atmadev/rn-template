@@ -43,7 +43,7 @@ export class SelectQuery<
 			tx.query(sql, args, resolve)
 		})
 
-		const start = Date.now()
+		// const start = Date.now()
 
 		const objectKeys = mapKeys(this.table, (key, type, flags) => {
 			if (
