@@ -19,7 +19,7 @@ export const setupDBForShapes = async <UsedShapeNames extends ShapeName>(
 	return { tables, table: <Name extends UsedShapeNames>(name: Name) => tables[name] }
 }
 
-class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
+export class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 	readonly name: TableName
 	constructor(name: TableName) {
 		this.name = name
