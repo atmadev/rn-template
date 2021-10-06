@@ -88,7 +88,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	...shapeNames: UsedShapeNames[]
 ) => {
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
-		// tx.query('SELECT sqlite_version()', undefined, log)
+		// tx.query('SELECT sqlite_version()', undefined, flatLog)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key UNIQUE NOT NULL, value NOT NULL)')
 		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
 	})
@@ -107,7 +107,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 	if (!schemaSetUpNeeded) return
 
-	// const tableInfoPragmas = await pragmas(shapeNames.map((sn) => `table_info(${sn});'`))
+	// const tableInfoPragmas = await pragma(...shapeNames.map((sn) => `table_info(${sn});'`))
 
 	// console.log('tableInfoPragmas', tableInfoPragmas)
 
@@ -135,8 +135,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 			indexColumns.forEach((i) =>
 				tx.query(
-					`CREATE INDEX IF NOT EXISTS ${
-						shapeName + capitalized(i) + 'Index'
+					`CREATE INDEX IF NOT EXISTS ${shapeName + capitalized(i) + 'Index'
 					} ON ${shapeName} (${i})`,
 				),
 			)
@@ -168,6 +167,6 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 }
 
 // eslint-disable-next-line
-const log = (result: any[]) => {
+const flatLog = (result: any[]) => {
 	result.forEach((r) => Object.entries(r).forEach((e) => console.log(...e)))
 }

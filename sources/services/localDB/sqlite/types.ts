@@ -35,9 +35,9 @@ type MapExtract<T, S, MAP> = Extract<T, S> extends never ? never : MAP
 
 // prettier-ignore
 export type AllowedOperators<T> =
-  	MapExtract<T, undefined, IsOperator> 
-	| MapExtract<T, string, BasicOperator | LikeOperator> 
-	| MapExtract<T, boolean, '='> 
+	MapExtract<T, undefined, IsOperator>
+	| MapExtract<T, string, BasicOperator | LikeOperator>
+	| MapExtract<T, boolean, '='>
 	| MapExtract<T, number, BasicOperator>
 
 export type SQLiteRowInfo = {

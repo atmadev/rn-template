@@ -14,11 +14,11 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 			// await db.table('Profile').insert(...stubProfiles)
 			// TODO: prepare good stub data with all possible types
 			// to test all possible operations in all possible type/operator combinations
-			/*	const profiles = db.tables.Profile
+			const profiles = db.tables.Profile
 
 			const searchString = 's'
 
-			const q = profiles.select('id', 'firstName', 'lastName', 'bio') //
+			const q = profiles.select('id', 'firstName', 'lastName', 'bio')
 
 			q.where('bio', 'IS', 'NOT NULL')
 				.and('id', '<>', '23')
@@ -29,7 +29,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 				q.where('firstName', 'LIKE', `${searchString}%`).or('lastName', 'LIKE', `${searchString}%`)
 
 			const result = await q.run()
-			console.log('result count', result.length) */
+			console.log('result count', result.length)
 			// console.log('result', result)
 		})
 		.catch((e) => console.log('Setup Shapes error', e))
