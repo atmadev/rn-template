@@ -2,7 +2,7 @@ import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
 import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
-import { transaction } from './utils'
+import { readTransaction, transaction } from './utils'
 import { mapKeys } from 'shared/types/utils'
 
 export class SelectQuery<
@@ -38,7 +38,7 @@ export class SelectQuery<
 	}
 
 	run = async (): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
-		const objects = await transaction((tx, resolve) => {
+		const objects = await readTransaction((tx, resolve) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args, resolve)
 		})
@@ -60,7 +60,7 @@ export class SelectQuery<
 				objectKeys.forEach((k) => (o[k] ? (o[k] = JSON.parse(o[k])) : null)),
 			)
 
-		console.log('Mapping time', Date.now() - start)
+		// console.log('Mapping time', Date.now() - start)
 
 		return objects
 	}

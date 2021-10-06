@@ -38,12 +38,13 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 	},
 })
 
-export const transaction = (
+const createTransactionMethod = (readonly: boolean) => (
 	handler: (tx: ReturnType<typeof wrapTansaction>, resolve: (result: any[]) => void) => void,
 ): Promise<any> =>
 	new Promise((resolve, reject) => {
 		let result: any[]
-		db.transaction(
+		const method = readonly ? db.readTransaction : db.transaction
+		method(
 			(tx) => {
 				handler(wrapTansaction(tx), (r) => (result = r))
 			},
@@ -53,6 +54,10 @@ export const transaction = (
 			},
 		)
 	})
+
+export const transaction = createTransactionMethod(false)
+export const readTransaction = createTransactionMethod(true)
+
 /*
 const pragma = (...funcs: string[]) =>
 	new Promise<any[]>((resolve, reject) => {
