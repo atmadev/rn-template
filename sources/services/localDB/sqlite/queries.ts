@@ -11,7 +11,7 @@ export class SelectQuery<
 	Object = PersistentShaped<TableName>,
 	QueribleObject = Querible<Object>,
 	QueribleColumn = keyof QueribleObject,
-> {
+	> {
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
@@ -26,8 +26,7 @@ export class SelectQuery<
 	private get sql() {
 		const args = this.whereBuilder.args
 		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${
-				this.table
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table
 			}` +
 			this.whereBuilder.clause +
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '') +
@@ -132,7 +131,7 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 export class UpdateQuery<
 	TableName extends ShapeName,
 	Object = Partial<PersistentShaped<TableName>>,
-> {
+	> {
 	readonly table: TableName
 	readonly object: Object
 
@@ -214,25 +213,25 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	get clause() {
 		return this.items.length > 0
 			? ' WHERE ' +
-					this.items
-						.map((items) => {
-							return (
-								(items.length > 1 ? '(' : '') +
-								items
-									.map((i) => {
-										const expression = i.key + ' ' + i.operator + ' '
-										if (i.operator.includes('BETWEEN')) return expression + '? AND ?'
-										else if (i.operator.includes('IN'))
-											return expression + '(' + i.value.map(() => '?').join(',') + ')'
-										else if (i.operator.includes('LIKE')) return expression + '?'
-										else if (i.operator === 'IS') return expression + i.value
-										else return expression + '?'
-									})
-									.join(' OR ') +
-								(items.length > 1 ? ')' : '')
-							)
-						})
-						.join(' AND ')
+			this.items
+				.map((items) => {
+					return (
+						(items.length > 1 ? '(' : '') +
+						items
+							.map((i) => {
+								const expression = i.key + ' ' + i.operator + ' '
+								if (i.operator.includes('BETWEEN')) return expression + '? AND ?'
+								else if (i.operator.includes('IN'))
+									return expression + '(' + i.value.map(() => '?').join(',') + ')'
+								else if (i.operator.includes('LIKE')) return expression + '?'
+								else if (i.operator === 'IS') return expression + i.value
+								else return expression + '?'
+							})
+							.join(' OR ') +
+						(items.length > 1 ? ')' : '')
+					)
+				})
+				.join(' AND ')
 			: ''
 	}
 
@@ -243,10 +242,10 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	where = <
 		K extends keyof Querible<PersistentShaped<TableName>>,
 		O extends AllowedOperators<Querible<PersistentShaped<TableName>>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<PersistentShaped<TableName>>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<PersistentShaped<TableName>>, K, O>,
 	) => {
 		this.items.push([{ key: key as string, operator, value }])
 		return {
@@ -260,10 +259,10 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<Object>, K, O>,
 	) => {
 		getLast(this.items)?.push({ key: key as string, operator, value })
 		return {
@@ -276,10 +275,10 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<Object>, K, O>,
 	) => {
 		this.items.push([{ key: key as string, operator, value }])
 		return {
@@ -301,10 +300,10 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		if (subStrings.length === 0) return this.actions
 
 		subStrings.forEach((s) => {
-			const value = `%${s}%`
+			const value = `${s}%`
 			keys.forEach((key, index) => {
 				// @ts-ignore
-				;(index === 0 ? this.where : this.orWhere)(key, 'LIKE', value)
+				; (index === 0 ? this.where : this.orWhere)(key, 'LIKE', value)
 			})
 		})
 

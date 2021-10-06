@@ -6,9 +6,6 @@ import { Profile, RootTabScreenProps } from 'shared/types'
 import { setupDBForShapes, Table } from 'services/localDB/sqlite'
 // import stubProfiles from './stubProfiles.json'
 
-// @ts-ignore
-import debounced from 'lodash/debounce'
-
 type ResultItem = Pick<Profile, 'id' | 'firstName' | 'lastName'>
 
 export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
@@ -38,57 +35,43 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 				.orderBy('firstName', 'lastName')
 				.limit(30)
 				.fetch()
-				.then(setResult)
+				.then((data) => setSearchString(s => {
+					if (s === searchString) setResult(data)
+					return s
+				}))
 				.catch((e) => console.log('Fetch error', e))
 		}
 	}, [table, searchString])
 
-	const onChangeTextDebounced = React.useCallback(
-		debounced((text: string) => {
-			setSearchString(text)
-		}, 50),
-		[],
-	)
-
-	return table ? (
+	return (
 		<View style={styles.container}>
-			<TextInput
-				style={{
-					height: 44,
-					fontSize: 18,
-					paddingHorizontal: 16,
-					borderBottomWidth: StyleSheet.hairlineWidth,
-					borderBottomColor: '#cecece',
-				}}
-				onChangeText={onChangeTextDebounced}
-			/>
-			<FlatList style={{ flex: 1 }} data={result} renderItem={renderItem} />
+			{table ? (
+				<>
+					<TextInput
+						style={styles.textInput}
+						onChangeText={setSearchString}
+					/>
+					<FlatList style={styles.flatList} data={result} renderItem={renderItem} keyExtractor={keyExtractor} />
+				</>
+			) : (
+				<Text style={styles.title}>🔄 Loading ...</Text>
+			)}
+
 		</View>
-	) : (
-		<Text style={styles.title}>🔄 Loading ...</Text>
 	)
 }
 
 const renderItem: ListRenderItem<ResultItem> = ({ item, index, separators }) => {
 	return (
-		<View
-			style={{
-				borderBottomWidth: StyleSheet.hairlineWidth,
-				borderBottomColor: '#cecece',
-			}}
-		>
-			<Text
-				style={{
-					fontSize: 18,
-					marginHorizontal: 16,
-					marginVertical: 10,
-				}}
-			>
+		<View style={styles.itemContainer}>
+			<Text style={styles.itemText}>
 				{item.firstName} {item.lastName}
 			</Text>
 		</View>
 	)
 }
+
+const keyExtractor = (item: any) => item.id
 
 const styles = StyleSheet.create({
 	container: {
@@ -97,12 +80,30 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	title: {
-		fontSize: 20,
-		fontWeight: 'bold',
+		fontSize: 30,
+		fontWeight: '500',
+		alignSelf: 'center'
 	},
 	separator: {
 		marginVertical: 30,
 		height: 1,
 		width: '80%',
 	},
+	textInput: {
+		height: 44,
+		fontSize: 18,
+		paddingHorizontal: 16,
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		borderBottomColor: '#cecece',
+	},
+	flatList: { flex: 1 },
+	itemContainer: {
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		borderBottomColor: '#cecece',
+	},
+	itemText: {
+		fontSize: 18,
+		marginHorizontal: 16,
+		marginVertical: 10,
+	}
 })
