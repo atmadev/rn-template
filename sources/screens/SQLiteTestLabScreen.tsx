@@ -36,6 +36,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 				.select('id', 'firstName', 'lastName')
 				.search(searchString, 'firstName', 'lastName')
 				.orderBy('firstName', 'lastName')
+				.limit(30)
 				.fetch()
 				.then(setResult)
 				.catch((e) => console.log('Fetch error', e))
@@ -45,7 +46,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 	const onChangeTextDebounced = React.useCallback(
 		debounced((text: string) => {
 			setSearchString(text)
-		}, 200),
+		}, 50),
 		[],
 	)
 

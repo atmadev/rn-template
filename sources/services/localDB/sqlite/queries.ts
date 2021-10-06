@@ -15,6 +15,8 @@ export class SelectQuery<
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
+	private _limit: number | null = null
+	private _offset: number | null = null
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
 		this.table = table
@@ -28,14 +30,27 @@ export class SelectQuery<
 				this.table
 			}` +
 			this.whereBuilder.clause +
-			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '')
+			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '') +
+			(this._limit
+				? '\nLIMIT ' + this._limit + (this._offset ? ' OFFSET ' + this._offset : '')
+				: '')
 
 		return { sql, args }
 	}
 
 	orderBy = (...keys: OrderItem<QueribleColumn>[]) => {
 		this.orderItems.push(...keys)
-		return this
+		return { limit: this.limit, fetch: this.fetch }
+	}
+
+	limit = (limit: number) => {
+		this._limit = limit
+		return { offset: this.offset, fetch: this.fetch }
+	}
+
+	private offset = (offset: number) => {
+		this._offset = offset
+		return { fetch: this.fetch }
 	}
 
 	fetch = async (): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
@@ -66,16 +81,11 @@ export class SelectQuery<
 		return objects
 	}
 
-	private actions = {
-		fetch: this.fetch,
-		orderBy: this.orderBy,
-	}
+	private actions = { fetch: this.fetch, orderBy: this.orderBy }
 
 	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
 	where = this.whereBuilder.where
 	search = this.whereBuilder.search
-
-	// TODO: add limit
 }
 
 type FilterType<T, F> = { [K in keyof T as T[K] extends F ? K : never]: T[K] }
