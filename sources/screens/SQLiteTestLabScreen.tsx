@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { FlatList, ListRenderItem, StyleSheet, TextInput } from 'react-native'
+import { FlatList, ListRenderItem, StyleSheet } from 'react-native'
 
-import { Text, View } from 'components/Themed'
+import { Text, View, TextInput } from 'components/Themed'
 import { Profile, RootTabScreenProps } from 'shared/types'
 import { setupDBForShapes, Table } from 'services/localDB/sqlite'
 // import stubProfiles from './stubProfiles.json'
@@ -61,7 +61,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 	)
 }
 
-const renderItem: ListRenderItem<ResultItem> = ({ item, index, separators }) => {
+const renderItem: ListRenderItem<ResultItem> = ({ item }) => {
 	return (
 		<View style={styles.itemContainer}>
 			<Text style={styles.itemText}>
@@ -94,12 +94,12 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		paddingHorizontal: 16,
 		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: '#cecece',
+		borderBottomColor: '#ccc',
 	},
 	flatList: { flex: 1 },
 	itemContainer: {
 		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: '#cecece',
+		borderBottomColor: '#ccc',
 	},
 	itemText: {
 		fontSize: 18,
