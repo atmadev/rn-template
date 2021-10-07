@@ -33,8 +33,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 				.select('id', 'firstName', 'lastName')
 				.search(searchString, 'firstName', 'lastName')
 				.orderBy('firstName', 'lastName')
-				.limit(30)
-				.fetch()
+				.fetch(30)
 				.then((data) => setSearchString(s => {
 					if (s === searchString) setResult(data)
 					return s

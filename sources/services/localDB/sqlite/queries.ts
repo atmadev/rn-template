@@ -15,8 +15,7 @@ export class SelectQuery<
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
-	private _limit: number | null = null
-	private _offset: number | null = null
+	private range: [number, number] | [number] | [] = []
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
 		this.table = table
@@ -30,29 +29,18 @@ export class SelectQuery<
 			}` +
 			this.whereBuilder.clause +
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(',') : '') +
-			(this._limit
-				? '\nLIMIT ' + this._limit + (this._offset ? ' OFFSET ' + this._offset : '')
-				: '')
+			(this.range.length > 0 ? '\nLIMIT ' + this.range.join(', ') : '')
 
 		return { sql, args }
 	}
 
 	orderBy = (...keys: OrderItem<QueribleColumn>[]) => {
 		this.orderItems.push(...keys)
-		return { limit: this.limit, fetch: this.fetch }
-	}
-
-	limit = (limit: number) => {
-		this._limit = limit
-		return { offset: this.offset, fetch: this.fetch }
-	}
-
-	private offset = (offset: number) => {
-		this._offset = offset
 		return { fetch: this.fetch }
 	}
 
-	fetch = async (): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
+	fetch = async (...range: typeof this.range): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
+		this.range = range
 		const objects = await readTransaction((tx, resolve) => {
 			const { sql, args } = this.sql
 			tx.query(sql, args, resolve)

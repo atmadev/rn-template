@@ -69,7 +69,7 @@ function BottomTabNavigator() {
 				component={SQLiteTestLabScreen}
 				options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
 					title: 'SQLite Test Lab',
-					tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+					tabBarIcon: ({ color }) => <TabBarIcon name="database" color={color} />,
 					headerRight: () => (
 						<Pressable
 							onPress={() => navigation.navigate('Modal')}
