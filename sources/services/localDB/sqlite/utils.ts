@@ -13,12 +13,11 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		success?: (result: any[]) => void,
 		error?: (error: SQLError) => void,
 	) {
-		// console.log('[SQL]:', query, args && args.length > 0 ? '\nArgs: ' + args.join(', ') : '')
-		/* console.log(
-				'[SQL]:',
-				query.length > 200 ? query.substr(0, 200) + '...' : query,
-				args && args.length > 0 ? '\nargs ' + args : '',
-			) */
+		/*console.log(
+			'[SQL]:',
+			query.length > 200 ? query.substr(0, 200) + '...' : query,
+			args && args.length > 0 ? '\nArgs ' + args : '',
+		)*/
 		// const start = Date.now()
 		tx.executeSql(
 			query,
@@ -40,22 +39,22 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 
 const createTransactionMethod =
 	(readonly: boolean) =>
-		(
-			handler: (tx: ReturnType<typeof wrapTansaction>, resolve: (result: any[]) => void) => void,
-		): Promise<any> =>
-			new Promise((resolve, reject) => {
-				let result: any[]
-				const method = (readonly ? db.readTransaction : db.transaction).bind(db)
-				method(
-					(tx) => {
-						handler(wrapTansaction(tx), (r) => (result = r))
-					},
-					reject,
-					() => {
-						resolve(result)
-					},
-				)
-			})
+	(
+		handler: (tx: ReturnType<typeof wrapTansaction>, resolve: (result: any[]) => void) => void,
+	): Promise<any> =>
+		new Promise((resolve, reject) => {
+			let result: any[]
+			const method = (readonly ? db.readTransaction : db.transaction).bind(db)
+			method(
+				(tx) => {
+					handler(wrapTansaction(tx), (r) => (result = r))
+				},
+				reject,
+				() => {
+					resolve(result)
+				},
+			)
+		})
 
 export const transaction = createTransactionMethod(false)
 export const readTransaction = createTransactionMethod(true)
@@ -142,7 +141,8 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 			indexColumns.forEach((i) =>
 				tx.query(
-					`CREATE INDEX IF NOT EXISTS ${shapeName + capitalized(i) + 'Index'
+					`CREATE INDEX IF NOT EXISTS ${
+						shapeName + capitalized(i) + 'Index'
 					} ON ${shapeName} (${i})`,
 				),
 			)

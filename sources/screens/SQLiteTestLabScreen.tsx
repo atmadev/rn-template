@@ -34,10 +34,12 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 				.search(searchString, 'firstName', 'lastName')
 				.orderBy('firstName', 'lastName')
 				.fetch(30)
-				.then((data) => setSearchString(s => {
-					if (s === searchString) setResult(data)
-					return s
-				}))
+				.then((data) =>
+					setSearchString((s) => {
+						if (s === searchString) setResult(data)
+						return s
+					}),
+				)
 				.catch((e) => console.log('Fetch error', e))
 		}
 	}, [table, searchString])
@@ -46,16 +48,17 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 		<View style={styles.container}>
 			{table ? (
 				<>
-					<TextInput
-						style={styles.textInput}
-						onChangeText={setSearchString}
+					<TextInput style={styles.textInput} onChangeText={setSearchString} />
+					<FlatList
+						style={styles.flatList}
+						data={result}
+						renderItem={renderItem}
+						keyExtractor={keyExtractor}
 					/>
-					<FlatList style={styles.flatList} data={result} renderItem={renderItem} keyExtractor={keyExtractor} />
 				</>
 			) : (
 				<Text style={styles.title}>🔄 Loading ...</Text>
 			)}
-
 		</View>
 	)
 }
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: 30,
 		fontWeight: '500',
-		alignSelf: 'center'
+		alignSelf: 'center',
 	},
 	separator: {
 		marginVertical: 30,
@@ -104,5 +107,5 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		marginHorizontal: 16,
 		marginVertical: 10,
-	}
+	},
 })
