@@ -75,6 +75,7 @@ export class SelectQuery<
 	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
 	where = this.whereBuilder.where
 	search = this.whereBuilder.search
+	match = this.whereBuilder.match
 }
 
 type FilterType<T, F> = { [K in keyof T as T[K] extends F ? K : never]: T[K] }
@@ -287,16 +288,30 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
 
-		if (subStrings.length === 0) return this.actions
+		if (subStrings.length === 0)
+			return {
+				where: this.where,
+				...this.actions,
+			}
 
-		subStrings.forEach((s) => {
-			const value = `${s}%`
-			keys.forEach((key, index) => {
-				// @ts-ignore
-				;(index === 0 ? this.where : this.orWhere)(key, 'LIKE', value)
-			})
+		subStrings.forEach((s) =>
+			this.items.push(keys.map((key: any) => ({ key, operator: 'LIKE', value: `${s}%` }))),
+		)
+		// TODO: clean code
+		return {
+			where: this.where,
+			...this.actions,
+		}
+	}
+
+	match = (object: Partial<Querible<Object>>) => {
+		Object.entries(object).forEach(([key, value]) => {
+			this.items.push([{ key: key as any, operator: '=', value }])
 		})
 
-		return this.actions
+		return {
+			where: this.where,
+			...this.actions,
+		}
 	}
 }
