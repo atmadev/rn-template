@@ -10,6 +10,9 @@ const db = openDatabase('dbV3')
 export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	...shapeNames: UsedShapeNames[]
 ) => {
+	// const result = await pragma('index_list(Profile)')
+	// console.log('index_list', result)
+
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
 		// tx.query('SELECT sqlite_version()', undefined, flatLog)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key UNIQUE NOT NULL, value NOT NULL)')
@@ -38,7 +41,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	// MIGRATION
 	// get schema hash
 	// if no schema hash
-	// | create tables
+	// | create tables & write hash
 	// | return
 	// if schema hash the same
 	// | return
@@ -118,11 +121,11 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		success?: (result: any[]) => void,
 		error?: (error: SQLError) => void,
 	) {
-		/* console.log(
+		console.log(
 			'[SQL]:',
 			query.length > 200 ? query.substr(0, 200) + '...' : query,
 			args && args.length > 0 ? '\nArgs ' + args : '',
-		) */
+		)
 		// const start = Date.now()
 		tx.executeSql(
 			query,

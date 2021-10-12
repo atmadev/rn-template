@@ -91,23 +91,22 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 
 	private get sql(): Query {
 		const args: any[] = []
+
+		const columns = mapKeys(this.table, (key, type, flags) => {
+			if (flags.includes('transient')) return null
+			return { key, type }
+		})
+		// prettier-ignore
 		const sql =
-			`INSERT OR REPLACE INTO ${this.table} VALUES\n` +
-			this.objects
-				.map((o) => {
-					return (
-						'(' +
-						mapKeys(this.table, (key, type, flags) => {
-							if (flags.includes('transient')) return null
-							// @ts-ignore
-							const value = o[key] ?? ''
-							args.push(typeof type === 'object' ? JSON.stringify(value) : value)
-							return '?'
-						}).join(',') +
-						')'
-					)
-				})
-				.join(',\n')
+			'INSERT OR REPLACE INTO ' + this.table + '\n(' + columns.map(c => c.key).join(', ') + ') ' + 
+			'VALUES\n' + this.objects.map((o) => ('(' +
+				columns.map(({key, type}) => {
+					// @ts-ignore
+					const value = o[key] ?? ''
+					args.push(typeof type === 'object' ? JSON.stringify(value) : value)
+					return '?'
+				}).join(',') +
+			')')).join(',\n')
 
 		return { sql, args }
 	}
