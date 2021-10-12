@@ -164,7 +164,7 @@ const createTransactionMethod =
 export const transaction = createTransactionMethod(false)
 export const readTransaction = createTransactionMethod(true)
 
-const pragma = (funcs: string[]) =>
+const pragma = (...funcs: string[]) =>
 	new Promise<any[]>((resolve, reject) => {
 		db.exec(
 			funcs.map((f) => {
@@ -195,4 +195,4 @@ const pragma = (funcs: string[]) =>
 	})
 
 const tableInfo = (tables: string[]): Promise<SQLiteRowInfo[][]> =>
-	pragma(tables.map((t) => `table_info(${t});`))
+	pragma(...tables.map((t) => `table_info(${t});`))
