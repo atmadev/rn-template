@@ -217,8 +217,8 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 								items.map((i) =>
 									i.key + ' ' + i.operator + ' ' + (
 										i.operator.includes('BETWEEN') ? '? AND ?' : 
-									 	i.operator.includes('IN') 			? '(' + i.value.map(() => '?').join(',') + ')' : 
-									 	i.operator === 'IS'					  ? i.value : '?'
+									 	i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
+									 	i.operator === 'IS'					   ? i.value : '?'
 									)).join(' OR ') +
 								(items.length > 1 ? ')' : ''),
 						).join(' AND ') : ''
