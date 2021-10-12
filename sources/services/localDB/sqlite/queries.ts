@@ -2,7 +2,7 @@ import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
 import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
-import { readTransaction, transaction } from './utils'
+import { readTransaction, transaction } from './engine'
 import { mapKeys } from 'shared/types/utils'
 
 export class SelectQuery<
