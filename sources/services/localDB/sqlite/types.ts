@@ -48,3 +48,11 @@ export type SQLiteRowInfo = {
 	dflt_value: ColumnTypes | null
 	pk: number
 }
+
+export type SQLiteIndexInfo = {
+	name: string
+	origin: 'c' | 'u'
+	partial: boolean
+	seq: number
+	unique: boolean
+}

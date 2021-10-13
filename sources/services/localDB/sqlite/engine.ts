@@ -3,15 +3,15 @@ import { capitalized, hash, pick } from 'services/utils'
 import { ShapeName } from 'shared/types/primitives'
 import { shapes } from 'shared/types/shapes'
 import { mapKeys } from 'shared/types/utils'
-import { SQLiteRowInfo } from './types'
+import { SQLiteIndexInfo, SQLiteRowInfo } from './types'
 
 const db = openDatabase('dbV3')
 
 export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	...shapeNames: UsedShapeNames[]
 ) => {
-	// const result = await pragma('index_list(Profile)')
-	// console.log('index_list', result)
+	const result = await indexList(['Profile'])
+	console.log('index_list', result)
 
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
 		// tx.query('SELECT sqlite_version()', undefined, flatLog)
@@ -199,3 +199,6 @@ const pragma = (...funcs: string[]) =>
 
 const tableInfo = (tables: string[]): Promise<SQLiteRowInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))
+
+const indexList = (tables: string[]): Promise<SQLiteIndexInfo[][]> =>
+	pragma(...tables.map((t) => `index_list(${t});`))

@@ -4,7 +4,7 @@
 		"start": "expo start",
 		"android": "expo start --android",
 		"ios": "expo start --ios",
-		"lint": "tsc && eslint 'sources/**/*.{ts,tsx}' App.tsx 'shared/**/*.ts' --fix",
+		"lint": "eslint --cache 'sources/**/*.{ts,tsx}' App.tsx 'shared/**/*.ts' --fix",
 		"postinstall": "husky install"
 	},
 	"dependencies": {
