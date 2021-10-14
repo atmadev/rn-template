@@ -1,4 +1,4 @@
-const heavy = process.env.HEAVY ? process.env.HEAVY : 0
+const heavy = process.env.HEAVY ? 1 : 0
 
 module.exports = {
 	parser: '@typescript-eslint/parser', // Specifies the ESLint parser
