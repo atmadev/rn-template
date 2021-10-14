@@ -1,3 +1,5 @@
+const heavy = process.env.HEAVY ? process.env.HEAVY : 0
+
 module.exports = {
 	parser: '@typescript-eslint/parser', // Specifies the ESLint parser
 
@@ -9,8 +11,8 @@ module.exports = {
 			'babel-module': {},
 		},
 	},
-	extends: ['standard', 'standard-react', 'prettier', 'plugin:import/typescript'],
-	plugins: ['@typescript-eslint', 'prettier', 'react-hooks'],
+	extends: ['standard', 'standard-react', 'plugin:import/typescript', 'prettier'],
+	plugins: ['@typescript-eslint', 'react-hooks', 'prettier'],
 
 	rules: {
 		'@typescript-eslint/no-unused-expressions': 1,
@@ -28,7 +30,18 @@ module.exports = {
 		'react/jsx-indent': 0,
 		'max-params': ['error', 4],
 		'react/display-name': 0,
+		'import/no-duplicates': heavy,
+		'react/jsx-no-bind': [
+			1,
+			{
+				ignoreDOMComponents: false,
+				ignoreRefs: false,
+				allowArrowFunctions: false,
+				allowFunctions: false,
+				allowBind: false,
+			},
+		],
+		'react/no-unused-prop-types': 0,
 		camelcase: 0,
-		// '@typescript-eslint/no-namespace': 0,
 	},
 }
