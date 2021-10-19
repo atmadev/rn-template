@@ -62,10 +62,10 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 	await transaction((tx) => {
 		for (const shapeName of shapeNames) {
-			const createColumns = mapKeys(shapeName, (key, _, flags) => {
+			const createColumns = mapKeys(shapeName, (key, _, flags, required) => {
 				if (flags.includes('transient')) return null
 				let string = key
-				if (flags.includes('required')) string += ' NOT NULL'
+				if (required) string += ' NOT NULL'
 
 				// TODO: add UNIQUE index manually to manage shape changes
 

@@ -1,14 +1,17 @@
 import { shapes } from './shapes'
 
-export type Flag = 'required' | 'indexed' | 'unique' | 'transient' | 'local'
+export type Flag = 'indexed' | 'unique' | 'transient' | 'local' | 'primary' // TODO: implement primary
 
 export type TypeInternal = PrimitiveType | Shape
 export type Type = TypeInternal | TypeInternal[]
 
 export type ShapeItem = {
+	_shapeItem: true
 	type: Type
 	readonly flags: readonly Flag[]
 }
+
+export type RequiredShapeItem = ShapeItem & { required: true }
 
 export type Shape = {
 	[key: string]: ShapeItem | Type
@@ -41,7 +44,7 @@ type IfFlag<I extends ShapeItem, F extends Flag, YES, NO> = ExtractFlag<I, F> ex
 	? NO
 	: YES
 
-type IsRequired<I, YES, NO> = I extends ShapeItem ? IfFlag<I, 'required', YES, NO> : NO
+type IsRequired<I, YES, NO> = I extends RequiredShapeItem ? YES : NO
 type IsPersistent<I, YES, NO> = I extends ShapeItem ? IfFlag<I, 'transient', NO, YES> : YES
 
 // prettier-ignore
@@ -80,3 +83,6 @@ export type ExpandDeep<T> = T extends object
 		? { [K in keyof O]: ExpandDeep<O[K]> }
 		: never
 	: T
+
+export const TRUE = true as const
+export const FALSE = false as const
