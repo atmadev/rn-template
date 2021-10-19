@@ -1,15 +1,13 @@
 import { openDatabase, SQLTransaction, SQLError } from 'expo-sqlite'
-import { capitalized, hash, pick } from 'services/utils'
+import { hash, pick } from 'services/utils'
 import { ShapeName } from 'shared/types/primitives'
 import { shapes } from 'shared/types/shapes'
 import { mapKeys } from 'shared/types/utils'
-import { SQLiteIndexInfo, SQLiteRowInfo } from './types'
+import { SQLSchema, SQLIndexInfo, SQLRowInfo } from './types'
 
 const db = openDatabase('dbV3')
 
-export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
-	...shapeNames: UsedShapeNames[]
-) => {
+export const setUpSchemaIfNeeded = async (schema: SQLSchema<ShapeName>) => {
 	const result = await indexList(['Profile'])
 	console.log('index_list', result)
 
@@ -22,9 +20,11 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 	const dbSchemaHash = dbSchemaHashResult?.value
 	// console.log('dbSchemaHash', dbSchemaHash)
 
+	const shapeNames = Object.keys(schema) as ShapeName[]
 	const currentShapes = pick(shapes, ...shapeNames)
+	const complexSchema = { schema, currentShapes }
 
-	const currentSchemaHash = hash(JSON.stringify(currentShapes))
+	const currentSchemaHash = hash(JSON.stringify(complexSchema))
 	// console.log('currentSchemaHash', currentSchemaHash)
 
 	const schemaSetUpNeeded = !dbSchemaHash || dbSchemaHash !== currentSchemaHash
@@ -69,24 +69,24 @@ export const setUpSchemaIfNeeded = async <UsedShapeNames extends ShapeName>(
 
 				// TODO: add UNIQUE index manually to manage shape changes
 
-				if (flags.includes('unique')) string += ' UNIQUE'
+				// if (flags.includes('unique')) string += ' UNIQUE'
 				return string
 			})
-
+			/*
 			const indexColumns = mapKeys(shapeName, (key, _, flags) => {
 				if (flags.includes('unique') || !flags.includes('indexed')) return null
 				return key
-			})
+			}) */
 
 			tx.query(`CREATE TABLE IF NOT EXISTS ${shapeName} (${createColumns.join(', ')})`)
-
+			/*
 			indexColumns.forEach((i) =>
 				tx.query(
 					`CREATE INDEX IF NOT EXISTS ${
 						shapeName + capitalized(i) + 'Index'
 					} ON ${shapeName} (${i})`,
 				),
-			)
+			) */
 
 			/*
 			tx.query(
@@ -197,8 +197,8 @@ const pragma = (...funcs: string[]) =>
 		)
 	})
 
-const tableInfo = (tables: string[]): Promise<SQLiteRowInfo[][]> =>
+const tableInfo = (tables: string[]): Promise<SQLRowInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))
 
-const indexList = (tables: string[]): Promise<SQLiteIndexInfo[][]> =>
+const indexList = (tables: string[]): Promise<SQLIndexInfo[][]> =>
 	pragma(...tables.map((t) => `index_list(${t});`))

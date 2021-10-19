@@ -1,6 +1,6 @@
 import { shapes } from './shapes'
 
-export type Flag = 'indexed' | 'unique' | 'transient' | 'local' | 'primary' // TODO: implement primary
+export type Flag = 'transient' | 'local'
 
 export type TypeInternal = PrimitiveType | Shape
 export type Type = TypeInternal | TypeInternal[]
@@ -50,11 +50,11 @@ type IsPersistent<I, YES, NO> = I extends ShapeItem ? IfFlag<I, 'transient', NO,
 // prettier-ignore
 type ShapedInternal<S extends Shape | Shape[]> = {
 	[K in keyof S]
-	: S[K] extends PrimitiveType ? PrimitiveTypeMap[S[K]] 					// string,   boolean,   number
-	: S[K] extends PrimitiveType[] ? PrimitiveTypeMap[S[K][number]][] // string[], boolean[], number[]
-	: S[K] extends ShapeItem ? ShapedItem<S[K]['type']>
-	: S[K] extends Shape ? _Shaped<S[K]>
-	: S[K] extends Shape[] ? _Shaped<S[K][number]>[]
+	: S[K] extends PrimitiveType   	? PrimitiveTypeMap[S[K]] 						// string,   boolean,   number
+	: S[K] extends PrimitiveType[] 	? PrimitiveTypeMap[S[K][number]][] 	// string[], boolean[], number[]
+	: S[K] extends ShapeItem 				? ShapedItem<S[K]['type']>
+	: S[K] extends Shape 						? _Shaped<S[K]>
+	: S[K] extends Shape[] 					? _Shaped<S[K][number]>[]
 	: never
 }
 

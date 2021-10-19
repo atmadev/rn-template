@@ -1,3 +1,6 @@
+import { PersistentShaped, ShapeName } from 'shared/types/primitives'
+import { Table } from '.'
+
 type Notted<T extends string> = T | `NOT ${T}`
 
 type ComparsionOperator = '=' | '>' | '<' | '>=' | '<=' | '<>'
@@ -40,7 +43,7 @@ export type AllowedOperators<T> =
 	| MapExtract<T, boolean, '='>
 	| MapExtract<T, number, BasicOperator>
 
-export type SQLiteRowInfo = {
+export type SQLRowInfo = {
 	cid: number
 	name: string
 	type: string
@@ -49,10 +52,29 @@ export type SQLiteRowInfo = {
 	pk: number
 }
 
-export type SQLiteIndexInfo = {
+export type SQLIndexInfo = {
 	name: string
 	origin: 'c' | 'u'
 	partial: boolean
 	seq: number
 	unique: boolean
 }
+
+export type SQLSchema<ShapeNames extends ShapeName> = {
+	[SN in ShapeNames]?: {
+		primaryKey?: keyof PersistentShaped<SN>
+		unique?: (keyof PersistentShaped<SN>)[][]
+		index?: (keyof PersistentShaped<SN>)[][]
+		namesHistory?: {
+			// eslint-disable-next-line no-unused-vars
+			[_ in keyof PersistentShaped<SN>]?: string[]
+		}
+	}
+}
+
+export type SQLDB<ShapeNames extends ShapeName> = {
+	table: <SN extends ShapeNames>(table: SN) => Table<SN>
+	tables: { [SN in ShapeNames]: Table<SN> }
+}
+
+// type GroupArray<T> = [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]

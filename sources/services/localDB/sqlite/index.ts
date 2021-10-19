@@ -1,22 +1,24 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { capitalized } from 'services/utils'
-import { Querible } from './types'
+import { Querible, SQLDB, SQLSchema } from './types'
 import { DeleteQuery, InsertQuery, SelectQuery, UpdateQuery } from './queries'
 import { setUpSchemaIfNeeded, transaction } from './engine'
 
-export const setupDBForShapes = async <UsedShapeNames extends ShapeName>(
-	...shapeNames: UsedShapeNames[]
-) => {
+export const setupDB = async <UsedShapeNames extends ShapeName>(
+	schema: SQLSchema<UsedShapeNames>,
+): Promise<SQLDB<UsedShapeNames>> => {
 	console.log('\n\n--- setupDBForShapes ---\n')
 
-	await setUpSchemaIfNeeded(...shapeNames)
+	const shapeNames = Object.keys(schema) as UsedShapeNames[]
 
-	const tables = {} as { [K in UsedShapeNames]: Table<K> }
+	await setUpSchemaIfNeeded(schema)
+
+	const tables = {} as SQLDB<UsedShapeNames>['tables']
 	for (const shapeName of shapeNames) {
 		tables[shapeName] = new Table(shapeName)
 	}
 
-	return { tables, table: <Name extends UsedShapeNames>(name: Name) => tables[name] }
+	return { tables, table: (name) => tables[name] }
 }
 
 export class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {

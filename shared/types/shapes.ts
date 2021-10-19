@@ -4,8 +4,6 @@ import { primitiveTypes, Type, Flag, Shape, TRUE } from './primitives'
 const { string, number, boolean } = primitiveTypes
 
 const _ = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => {
-	if (flags === undefined || flags.length === 0)
-		throw new Error('ShapItem Flags can not be empty. Just set type directly instead')
 	return { type, flags, _shapeItem: TRUE }
 }
 
@@ -15,7 +13,7 @@ const r = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => {
 
 const shape = <T extends Shape>(s: T) => s
 
-const id = r(string, 'primary')
+const id = r(string)
 
 const Country = shape({
 	id,
@@ -24,10 +22,10 @@ const Country = shape({
 
 const Profile = shape({
 	id,
-	createdAt: r(number, 'indexed'),
-	numbers: _([number], 'indexed'),
+	createdAt: r(number),
+	numbers: [number],
 	country: _(Country, 'transient'),
-	countryId: _(string, 'indexed'),
+	countryId: r(string),
 	online: _(boolean, 'transient'),
 
 	firstName: string,
