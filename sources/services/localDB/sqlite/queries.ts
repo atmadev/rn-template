@@ -132,20 +132,15 @@ export class UpdateQuery<
 
 	get sql() {
 		const args: any[] = []
-		const sql =
-			'UPDATE ' +
-			this.table +
-			' SET ' +
-			Object.entries(this.object)
-				.map(([k, v]) => {
+		// prettier-ignore
+		const sql = 'UPDATE ' + this.table + ' SET ' +
+			Object.entries(this.object).map(([k, v]) => {
 					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
 					return k + ' = ?'
-				})
-				.join(', ') +
+			}).join(', ') + 
 			this.whereBuilder.clause
 
 		args.push(...this.whereBuilder.args)
-
 		return { sql, args }
 	}
 
@@ -182,9 +177,7 @@ export class DeleteQuery<TableName extends ShapeName> {
 			tx.query(sql, args)
 		})
 
-	private actions = {
-		run: this.run,
-	}
+	private actions = { run: this.run }
 
 	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
 	where = this.whereBuilder.where
@@ -210,17 +203,17 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	// prettier-ignore
 	get clause() {
-		return this.items.length > 0
-			? ' WHERE ' + this.items.map((items) =>
-								(items.length > 1 ? '(' : '') +
-								items.map((i) =>
-									i.key + ' ' + i.operator + ' ' + (
-										i.operator.includes('BETWEEN') ? '? AND ?' 																		: 
-									 	i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
-									 	i.operator === 'IS'					   ? i.value 																			: '?'
-									)).join(' OR ') +
-								(items.length > 1 ? ')' : ''),
-						).join(' AND ') : ''
+		return this.items.length > 0 ?
+			' WHERE ' + this.items.map((items) =>
+			 	 (items.length > 1 ? '(' : '') +
+					items.map((i) =>
+						i.key + ' ' + i.operator + ' ' + (
+						i.operator.includes('BETWEEN') ? '? AND ?' 																		: 
+						i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
+						i.operator === 'IS'					   ? i.value 																			: '?'
+					)).join(' OR ') +
+					(items.length > 1 ? ')' : ''),
+			).join(' AND ') : ''
 	}
 
 	where = <
@@ -288,10 +281,9 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	}
 
 	match = (object: Partial<Querible<Object>>) => {
-		Object.entries(object).forEach(([key, value]) => {
-			this.items.push([{ key: key as any, operator: '=', value }])
-		})
-
+		Object.entries(object).forEach(([key, value]) =>
+			this.items.push([{ key: key as any, operator: '=', value }]),
+		)
 		return this.actions
 	}
 }

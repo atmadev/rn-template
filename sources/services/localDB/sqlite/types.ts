@@ -1,5 +1,4 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
-import { Table } from '.'
 
 type Notted<T extends string> = T | `NOT ${T}`
 
@@ -70,11 +69,6 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 			[_ in keyof PersistentShaped<SN>]?: string[]
 		}
 	}
-}
-
-export type SQLDB<ShapeNames extends ShapeName> = {
-	table: <SN extends ShapeNames>(table: SN) => Table<SN>
-	tables: { [SN in ShapeNames]: Table<SN> }
 }
 
 // type GroupArray<T> = [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]

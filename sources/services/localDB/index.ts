@@ -1,6 +1,6 @@
 import { ShapeName } from 'shared/types/primitives'
-import { setupDB } from './sqlite'
-import { SQLDB, SQLSchema } from './sqlite/types'
+import { setupDB, SQLDB } from './sqlite'
+import { SQLSchema } from './sqlite/types'
 
 const useShapes = <SN extends ShapeName>(...names: SN[]) => names
 
@@ -10,8 +10,8 @@ type UsedShapeNames = typeof usedShapeNames[number]
 
 const schema: SQLSchema<UsedShapeNames> = {
 	Profile: {
-		index: [['firstName', 'lastName DESC']],
 		unique: [['id']],
+		index: [['firstName', 'lastName DESC']],
 		namesHistory: {
 			id: ['profileId'],
 			firstName: ['name', 'profileName'],

@@ -5,7 +5,7 @@ import { shapes } from 'shared/types/shapes'
 import { mapKeys } from 'shared/types/utils'
 import { indexList, tableInfo } from './engine'
 import { SQLSchema, SQLIndexInfo } from './types'
-import { indexName, flatLog } from './utils'
+import { indexName } from './utils'
 
 export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 	schema: SQLSchema<UsedShapeName>,
@@ -13,10 +13,9 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 	// MIGRATION
 	// get db schema hash
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
-		tx.query('SELECT sqlite_version()', undefined, flatLog)
-		// tx.query('PRAGMA table_info(*)', undefined, flatLog)
-		tx.query(`SELECT sql FROM sqlite_master`, undefined, console.log)
-		tx.query('CREATE TABLE IF NOT EXISTS _Config (key UNIQUE NOT NULL, value NOT NULL)')
+		// tx.query('SELECT sqlite_version()', undefined, flatLog)
+		// tx.query(`SELECT sql FROM sqlite_master`, undefined, console.log)
+		tx.query('CREATE TABLE IF NOT EXISTS _Config (key PRIMARY KEY NOT NULL, value NOT NULL)')
 		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
 	})
 
@@ -84,7 +83,6 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 	hash: number,
 ) => {
 	const shapeNames = Object.keys(schema) as UsedShapeName[]
-	// get table infos, create map
 	const [tableInfos, indexLists] = await Promise.all([tableInfo(shapeNames), indexList(shapeNames)])
 	// console.log('tableInfos', tableInfos)
 	// console.log('indexLists', indexLists)
@@ -110,15 +108,15 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 				let oldColumnName
 				if (!tableInfoMap[key]) {
 					// look up history
-					// @ts-ignore
-					schemaItem.namesHistory?.[key]?.forEach((oldName) => {
-						if (tableInfoMap[oldName]) oldColumnName = oldName
-					})
+					// TODO: test renaming
+					// prettier-ignore
+					oldColumnName = schemaItem.namesHistory?.[key as UsedShapeName]?.find(on => tableInfoMap[on])
+
 					if (oldColumnName) {
 						// RENAME COLUMN
 						tx.query(`ALTER TABLE ${shapeName} RENAME COLUMN ${oldColumnName} TO ${key}`)
 					} else {
-						// add
+						// ADD COLUMN
 						// forbid NOT NULL and PRIMARY for new fields
 						// prettier-ignore
 						if (required) throw new Error('SQLiteEngine error: tried to add required field ' + key + ' to the existing table ' + shapeName)
@@ -128,7 +126,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 						tx.query(`ALTER TABLE ${shapeName} ADD ${key}`)
 					}
 				}
-				// | | delete from table info map
+				// delete from table info map
 				delete tableInfoMap[oldColumnName ?? key]
 			})
 
@@ -151,7 +149,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			// }
 		})
 
-		// TODO: DROP TABLES
+		// TODO: drop unused tables
 		// set new schema hash
 		tx.query(`REPLACE INTO _Config VALUES ('schemaHash', ${hash})`)
 	})
@@ -169,14 +167,12 @@ const migrateIndex = <UsedShapeName extends ShapeName>(
 
 	list?.forEach((columns) => {
 		const name = indexName(shapeName, columns as string[])
-		// | | if hasn't index, add
 		let index: SQLIndexInfo | null = indexListMap[name]
 
 		if (index && index.unique !== unique) {
 			tx.query('DROP INDEX ' + name)
 			index = null
 		}
-
 		// prettier-ignore
 		if (!index)	tx.query(`CREATE${unique ? ' UNIQUE' : ''} INDEX ${name} ON ${shapeName} (${columns.join(', ')})`)
 

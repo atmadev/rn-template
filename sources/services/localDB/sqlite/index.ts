@@ -1,6 +1,6 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { capitalized } from 'services/utils'
-import { Querible, SQLDB, SQLSchema } from './types'
+import { Querible, SQLSchema } from './types'
 import { DeleteQuery, InsertQuery, SelectQuery, UpdateQuery } from './queries'
 import { transaction } from './engine'
 import { setUpSchemaIfNeeded } from './migration'
@@ -22,7 +22,7 @@ export const setupDB = async <UsedShapeNames extends ShapeName>(
 	return { tables, table: (name) => tables[name] }
 }
 
-export class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
+class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 	readonly name: TableName
 	constructor(name: TableName) {
 		this.name = name
@@ -48,4 +48,9 @@ export class Table<TableName extends ShapeName, Object = PersistentShaped<TableN
 				} ON ${this.name} (${columns.join(',')})`,
 			),
 		)
+}
+
+export type SQLDB<ShapeNames extends ShapeName> = {
+	table: <SN extends ShapeNames>(table: SN) => Table<SN>
+	tables: { [SN in ShapeNames]: Table<SN> }
 }

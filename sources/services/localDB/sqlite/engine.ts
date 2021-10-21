@@ -91,6 +91,3 @@ const pragma = (...funcs: string[]) =>
 			},
 		)
 	})
-
-// TEST: two indexes with the same name on different tables
-// TODO: ASC DESC on index
