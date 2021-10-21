@@ -20,3 +20,17 @@ export const hash = function (str: string, seed = 0) {
 	h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909)
 	return 4294967296 * (2097151 & h2) + (h1 >>> 0)
 }
+
+type OnlyValueTypes<T, V> = { [K in keyof T as T[K] extends V ? K : never]: T[K] }
+// type OnlyObjects<T> = OnlyValueTypes<T, object>
+type OnlyStrings<T> = OnlyValueTypes<T, string>
+
+export const mapFromArray = <T, K extends keyof OnlyStrings<T>>(array: T[], key: K) => {
+	const map = {} as { [key: string]: T }
+	array.forEach((object) => {
+		// @ts-ignore
+		const id = object[key]
+		map[id] = object
+	})
+	return map
+}

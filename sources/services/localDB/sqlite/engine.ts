@@ -1,118 +1,13 @@
 import { openDatabase, SQLTransaction, SQLError } from 'expo-sqlite'
-import { hash, pick } from 'services/utils'
-import { ShapeName } from 'shared/types/primitives'
-import { shapes } from 'shared/types/shapes'
-import { mapKeys } from 'shared/types/utils'
-import { SQLSchema, SQLIndexInfo, SQLRowInfo } from './types'
+import { SQLColumnInfo, SQLIndexInfo } from './types'
 
 const db = openDatabase('dbV3')
 
-export const setUpSchemaIfNeeded = async (schema: SQLSchema<ShapeName>) => {
-	const result = await indexList(['Profile'])
-	console.log('index_list', result)
+export const tableInfo = (tables: string[]): Promise<SQLColumnInfo[][]> =>
+	pragma(...tables.map((t) => `table_info(${t});`))
 
-	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
-		// tx.query('SELECT sqlite_version()', undefined, flatLog)
-		tx.query('CREATE TABLE IF NOT EXISTS _Config (key UNIQUE NOT NULL, value NOT NULL)')
-		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
-	})
-
-	const dbSchemaHash = dbSchemaHashResult?.value
-	// console.log('dbSchemaHash', dbSchemaHash)
-
-	const shapeNames = Object.keys(schema) as ShapeName[]
-	const currentShapes = pick(shapes, ...shapeNames)
-	const complexSchema = { schema, currentShapes }
-
-	const currentSchemaHash = hash(JSON.stringify(complexSchema))
-	// console.log('currentSchemaHash', currentSchemaHash)
-
-	const schemaSetUpNeeded = !dbSchemaHash || dbSchemaHash !== currentSchemaHash
-
-	// console.log('schemaSetUpNeeded', schemaSetUpNeeded)
-
-	if (!schemaSetUpNeeded) return
-
-	const tableInfoPragmas = await tableInfo(shapeNames)
-	console.log('tableInfoPragmas', tableInfoPragmas)
-
-	// const tableInfos = {} as { [K in UsedShapeNames]: SQLiteRowInfo[] }
-
-	// MIGRATION
-	// get schema hash
-	// if no schema hash
-	// | create tables & write hash
-	// | return
-	// if schema hash the same
-	// | return
-	// get table infos, create map
-	// TODO: investigate indexes info
-	// enumerate shapes
-	// | if not exists
-	// | | create table
-	// | | continue
-	// | mapKeys
-	// | | if not exist
-	// | | | add
-	// | | | forbid NOT NULL for new fields
-	// | | if hasn't index, add
-	// | | delete from table info map
-	// | delete rest columns from table info
-	// set new schema hash
-
-	await transaction((tx) => {
-		for (const shapeName of shapeNames) {
-			const createColumns = mapKeys(shapeName, (key, _, flags, required) => {
-				if (flags.includes('transient')) return null
-				let string = key
-				if (required) string += ' NOT NULL'
-
-				// TODO: add UNIQUE index manually to manage shape changes
-
-				// if (flags.includes('unique')) string += ' UNIQUE'
-				return string
-			})
-			/*
-			const indexColumns = mapKeys(shapeName, (key, _, flags) => {
-				if (flags.includes('unique') || !flags.includes('indexed')) return null
-				return key
-			}) */
-
-			tx.query(`CREATE TABLE IF NOT EXISTS ${shapeName} (${createColumns.join(', ')})`)
-			/*
-			indexColumns.forEach((i) =>
-				tx.query(
-					`CREATE INDEX IF NOT EXISTS ${
-						shapeName + capitalized(i) + 'Index'
-					} ON ${shapeName} (${i})`,
-				),
-			) */
-
-			/*
-			tx.query(
-				`PRAGMA table_info(${shapeName});'`,
-				undefined,
-				(array) => {
-					tableInfos[shapeName] = array
-				},
-				(error) => console.log('Columns check error', error),
-			) */
-		}
-		tx.query(`INSERT OR REPLACE INTO _Config VALUES ('schemaHash', ${currentSchemaHash})`)
-	})
-
-	// console.log('setUpSchema success')
-	/*
-	const config = await transaction((tx, resolve) => {
-		tx.query('SELECT * FROM _Config', [], resolve)
-	})
-	 console.log('config', config) */
-
-	// Validate unique indexes
-	// Remove uneeded indexes
-	// validate are all fields presented in the SQLite
-	// console.log('infos', tableInfos)
-}
+export const indexList = (tables: string[]): Promise<SQLIndexInfo[][]> =>
+	pragma(...tables.map((t) => `index_list(${t});`))
 
 const wrapTansaction = (tx: SQLTransaction) => ({
 	query(
@@ -145,11 +40,11 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 	},
 })
 
+export type Transaction = ReturnType<typeof wrapTansaction>
+
 const createTransactionMethod =
 	(readonly: boolean) =>
-	(
-		handler: (tx: ReturnType<typeof wrapTansaction>, resolve: (result: any[]) => void) => void,
-	): Promise<any> =>
+	(handler: (tx: Transaction, resolve: (result: any[]) => void) => void): Promise<any> =>
 		new Promise((resolve, reject) => {
 			let result: any[]
 			const method = (readonly ? db.readTransaction : db.transaction).bind(db)
@@ -197,8 +92,5 @@ const pragma = (...funcs: string[]) =>
 		)
 	})
 
-const tableInfo = (tables: string[]): Promise<SQLRowInfo[][]> =>
-	pragma(...tables.map((t) => `table_info(${t});`))
-
-const indexList = (tables: string[]): Promise<SQLIndexInfo[][]> =>
-	pragma(...tables.map((t) => `index_list(${t});`))
+// TEST: two indexes with the same name on different tables
+// TODO: ASC DESC on index

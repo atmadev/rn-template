@@ -4,23 +4,20 @@ import { SQLDB, SQLSchema } from './sqlite/types'
 
 const useShapes = <SN extends ShapeName>(...names: SN[]) => names
 
-const usedShapeNames = useShapes('Profile')
+const usedShapeNames = useShapes('Profile', 'Country')
 
 type UsedShapeNames = typeof usedShapeNames[number]
 
 const schema: SQLSchema<UsedShapeNames> = {
 	Profile: {
-		primaryKey: 'id',
-		index: [['firstName', 'lastName']],
-		unique: [
-			['id', 'interests'],
-			['firstName', 'createdAt'],
-		],
+		index: [['firstName', 'lastName DESC']],
+		unique: [['id']],
 		namesHistory: {
 			id: ['profileId'],
 			firstName: ['name', 'profileName'],
 		},
 	},
+	Country: {},
 }
 
 let db: SQLDB<UsedShapeNames>

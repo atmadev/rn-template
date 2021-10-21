@@ -2,7 +2,8 @@ import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { capitalized } from 'services/utils'
 import { Querible, SQLDB, SQLSchema } from './types'
 import { DeleteQuery, InsertQuery, SelectQuery, UpdateQuery } from './queries'
-import { setUpSchemaIfNeeded, transaction } from './engine'
+import { transaction } from './engine'
+import { setUpSchemaIfNeeded } from './migration'
 
 export const setupDB = async <UsedShapeNames extends ShapeName>(
 	schema: SQLSchema<UsedShapeNames>,

@@ -43,7 +43,7 @@ export type AllowedOperators<T> =
 	| MapExtract<T, boolean, '='>
 	| MapExtract<T, number, BasicOperator>
 
-export type SQLRowInfo = {
+export type SQLColumnInfo = {
 	cid: number
 	name: string
 	type: string
@@ -54,17 +54,17 @@ export type SQLRowInfo = {
 
 export type SQLIndexInfo = {
 	name: string
-	origin: 'c' | 'u'
-	partial: boolean
+	origin: 'c' | 'u' | 'pk'
+	partial: 0 | 1
 	seq: number
-	unique: boolean
+	unique: 0 | 1
 }
 
 export type SQLSchema<ShapeNames extends ShapeName> = {
-	[SN in ShapeNames]?: {
+	[SN in ShapeNames]: {
 		primaryKey?: keyof PersistentShaped<SN>
-		unique?: (keyof PersistentShaped<SN>)[][]
-		index?: (keyof PersistentShaped<SN>)[][]
+		unique?: OrderItem<keyof PersistentShaped<SN>>[][]
+		index?: OrderItem<keyof PersistentShaped<SN>>[][]
 		namesHistory?: {
 			// eslint-disable-next-line no-unused-vars
 			[_ in keyof PersistentShaped<SN>]?: string[]
