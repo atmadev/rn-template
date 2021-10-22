@@ -132,6 +132,9 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 
 			const indexList = indexLists[i]
 			const indexListMap = mapFromArray(indexList, 'name')
+
+			// TODO: create my own schema index map, merge regular and unique indexes, unique whould override regular
+
 			const params = { tx, shapeName, schemaItem, indexListMap }
 			migrateIndex(1, params)
 			migrateIndex(0, params)
@@ -142,7 +145,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			}
 
 			// DROP COLUMNS
-			// TODO: uncomment when will be supported on Expo
+			// TODO: uncomment when will be supported, add sqlite version check
 			// It should be done after indexes dropping
 			// for (const deletedColumn in tableInfoMap) {
 			// 	tx.query(`ALTER TABLE ${shapeName} DROP ${deletedColumn}`)

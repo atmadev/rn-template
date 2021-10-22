@@ -1,7 +1,7 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
-import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue } from './types'
+import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue, Array1_5 } from './types'
 import { readTransaction, transaction } from './engine'
 import { mapKeys } from 'shared/types/utils'
 
@@ -64,9 +64,7 @@ export class SelectQuery<
 			objects.forEach((o: any) =>
 				objectKeys.forEach((k) => (o[k] ? (o[k] = JSON.parse(o[k])) : null)),
 			)
-
 		// console.log('Mapping time', Date.now() - start)
-
 		return objects
 	}
 
@@ -135,8 +133,8 @@ export class UpdateQuery<
 		// prettier-ignore
 		const sql = 'UPDATE ' + this.table + ' SET ' +
 			Object.entries(this.object).map(([k, v]) => {
-					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
-					return k + ' = ?'
+				args.push(typeof v === 'object' ? JSON.stringify(v) : v)
+				return k + ' = ?'
 			}).join(', ') + 
 			this.whereBuilder.clause
 
@@ -208,9 +206,9 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 			 	 (items.length > 1 ? '(' : '') +
 					items.map((i) =>
 						i.key + ' ' + i.operator + ' ' + (
-						i.operator.includes('BETWEEN') ? '? AND ?' 																		: 
-						i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
-						i.operator === 'IS'					   ? i.value 																			: '?'
+							i.operator.includes('BETWEEN') ? '? AND ?' 																		: 
+							i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
+							i.operator === 'IS'					   ? i.value 																			: '?'
 					)).join(' OR ') +
 					(items.length > 1 ? ')' : ''),
 			).join(' AND ') : ''
@@ -264,11 +262,8 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	search = (
 		string: string,
-		...keys: (keyof FilterType<Querible<PersistentShaped<TableName>>, string | undefined>)[]
+		...keys: Array1_5<keyof FilterType<Querible<PersistentShaped<TableName>>, string | undefined>>
 	) => {
-		if (keys.length === 0)
-			throw new Error('Please, set up search keys in the .search(searchString, ...keys) method')
-
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
 
 		if (subStrings.length === 0) return this.actions
@@ -282,7 +277,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	match = (object: Partial<Querible<Object>>) => {
 		Object.entries(object).forEach(([key, value]) =>
-			this.items.push([{ key: key as any, operator: '=', value }]),
+			this.items.push([{ key, operator: '=', value }]),
 		)
 		return this.actions
 	}

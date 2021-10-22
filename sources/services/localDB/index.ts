@@ -10,25 +10,17 @@ type UsedShapeNames = typeof usedShapeNames[number]
 
 const schema: SQLSchema<UsedShapeNames> = {
 	Profile: {
-		unique: [['id']],
-		index: [['firstName', 'lastName DESC']],
-		namesHistory: {
-			id: ['profileId'],
-			firstName: ['name', 'profileName'],
-		},
+		primaryKey: 'id',
 	},
 	Country: {},
 }
 
 let db: SQLDB<UsedShapeNames>
 
-export const initLocalDB = async () => {
-	db = await setupDB(schema)
-}
-
+export const initLocalDB = async () => (db = await setupDB(schema))
+// prettier-ignore
 export const searchProfile = async (searchString: string) =>
-	db
-		.table('Profile')
+	db.table('Profile')
 		.select('id', 'firstName', 'lastName')
 		.search(searchString, 'firstName', 'lastName')
 		.orderBy('firstName', 'lastName')

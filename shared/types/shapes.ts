@@ -13,7 +13,7 @@ const r = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => {
 
 const shape = <T extends Shape>(s: T) => s
 
-const id = r(string)
+const id = r(number)
 
 const Country = shape({
 	id,
@@ -24,7 +24,7 @@ const Profile = shape({
 	id,
 	createdAt: r(number),
 	numbers: [number],
-	country: _(Country, 'transient'),
+	country: r(Country, 'transient'),
 	countryId: r(string),
 	online: _(boolean, 'transient'),
 

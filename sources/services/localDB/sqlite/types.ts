@@ -71,4 +71,4 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 	}
 }
 
-// type GroupArray<T> = [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]
+export type Array1_5<T> = [T] | [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]

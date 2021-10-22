@@ -1,8 +1,6 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
-import { capitalized } from 'services/utils'
-import { Querible, SQLSchema } from './types'
+import { SQLSchema } from './types'
 import { DeleteQuery, InsertQuery, SelectQuery, UpdateQuery } from './queries'
-import { transaction } from './engine'
 import { setUpSchemaIfNeeded } from './migration'
 
 export const setupDB = async <UsedShapeNames extends ShapeName>(
@@ -39,15 +37,6 @@ class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 
 	update = (object: Partial<PersistentShaped<TableName>>) => new UpdateQuery(this.name, object)
 	delete = () => new DeleteQuery(this.name)
-
-	createIndex = async (...columns: (keyof Querible<PersistentShaped<TableName>> & string)[]) =>
-		transaction((tx) =>
-			tx.query(
-				`CREATE INDEX IF NOT EXISTS ${
-					this.name + columns.map((c) => capitalized(c)).join('') + 'Index'
-				} ON ${this.name} (${columns.join(',')})`,
-			),
-		)
 }
 
 export type SQLDB<ShapeNames extends ShapeName> = {
