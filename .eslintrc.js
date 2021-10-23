@@ -15,6 +15,7 @@ module.exports = {
 	plugins: ['@typescript-eslint', 'react-hooks', 'prettier'],
 
 	rules: {
+		'@typescript-eslint/no-unused-vars': [1, { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 		'@typescript-eslint/no-unused-expressions': 1,
 		'@typescript-eslint/no-empty-function': 0,
 		'@typescript-eslint/explicit-module-boundary-types': 0,

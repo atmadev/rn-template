@@ -23,7 +23,11 @@ export type WhereItem = {
 	value: any
 }
 
-export type OrderItem<Key> = Key | `${string & Key} DESC`
+type OrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
+
+export type OrderItem<Key> = Key | `${string & Key} ${string & OrderModifier}`
+
+type IndexItem<Key> = Key | `${string & Key} DESC`
 
 // prettier-ignore
 export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K], undefined>> =
@@ -62,8 +66,8 @@ export type SQLIndexInfo = {
 export type SQLSchema<ShapeNames extends ShapeName> = {
 	[SN in ShapeNames]: {
 		primaryKey?: keyof PersistentShaped<SN>
-		unique?: OrderItem<keyof PersistentShaped<SN>>[][]
-		index?: OrderItem<keyof PersistentShaped<SN>>[][]
+		unique?: IndexItem<keyof PersistentShaped<SN>>[][]
+		index?: IndexItem<keyof PersistentShaped<SN>>[][]
 		namesHistory?: {
 			// eslint-disable-next-line no-unused-vars
 			[_ in keyof PersistentShaped<SN>]?: string[]

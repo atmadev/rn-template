@@ -2,6 +2,24 @@ import { shapes } from './shapes'
 
 export type Flag = 'transient' | 'local'
 
+export type PrimitiveTypeMap = {
+	_string: string
+	_number: number
+	_boolean: boolean
+	_any: any
+	_true: true
+}
+
+export const primitiveTypes = {
+	string: '_string' as const,
+	number: '_number' as const,
+	boolean: '_boolean' as const,
+	any: '_any' as const,
+	TRUE: '_true' as const,
+}
+
+export type PrimitiveType = keyof PrimitiveTypeMap
+
 export type TypeInternal = PrimitiveType | Shape
 export type Type = TypeInternal | TypeInternal[]
 
@@ -17,27 +35,13 @@ export type Shape = {
 	[key: string]: ShapeItem | Type
 }
 
-export type PrimitiveTypeMap = {
-	string: string
-	number: number
-	boolean: boolean
-}
-
-export const primitiveTypes = {
-	string: 'string' as const,
-	number: 'number' as const,
-	boolean: 'boolean' as const,
-}
-
-export type PrimitiveType = keyof typeof primitiveTypes
-
 // prettier-ignore
 type ShapedItem<T extends Type> =
-	T extends PrimitiveType     ? PrimitiveTypeMap[T]
+    T extends {_string: infer T} ? T extends Type ? Record<string, ShapedItem<T>> : never
+  :	T extends PrimitiveType   ? PrimitiveTypeMap[T]
 	: T extends PrimitiveType[] ? PrimitiveTypeMap[T[number]][]
 	: T extends Shape 				  ? _Shaped<T>
-	: T extends Shape[] 				? _Shaped<T[number]>[]
-	: never
+	: T extends Shape[] 				? _Shaped<T[number]>[] : never
 
 type ExtractFlag<I extends ShapeItem, F extends Flag> = Extract<I['flags'][number], F>
 type IfFlag<I extends ShapeItem, F extends Flag, YES, NO> = ExtractFlag<I, F> extends never
@@ -50,16 +54,8 @@ type IsPersistent<I, YES, NO> = I extends ShapeItem ? IfFlag<I, 'transient', NO,
 // prettier-ignore
 type ShapedInternal<S extends Shape | Shape[]> = {
 	[K in keyof S]
-	: S[K] extends PrimitiveType   	? PrimitiveTypeMap[S[K]] 						// string,   boolean,   number
-	: S[K] extends PrimitiveType[] 	? PrimitiveTypeMap[S[K][number]][] 	// string[], boolean[], number[]
-	: S[K] extends ShapeItem 				? ShapedItem<S[K]['type']>
-	: S[K] extends Shape 						? _Shaped<S[K]>
-	: S[K] extends Shape[] 					? _Shaped<S[K][number]>[]
-	: never
-}
-
-type RequiredOnly<S extends Shape> = {
-	[K in keyof S as IsRequired<S[K], K, never>]: S[K]
+	: S[K] extends ShapeItem ? ShapedItem<S[K]['type']>
+	: S[K] extends Type			 ? ShapedItem<S[K]> : never
 }
 
 type _Shaped<S extends Shape | Shape[]> = Partial<ShapedInternal<S>> &
@@ -70,6 +66,10 @@ type _PersistentShaped<S extends Shape> = _Shaped<
 		[K in keyof S as IsPersistent<S[K], K, never>]: S[K]
 	}
 >
+
+type RequiredOnly<S extends Shape> = {
+	[K in keyof S as IsRequired<S[K], K, never>]: S[K]
+}
 
 export type Shapes = typeof shapes
 export type ShapeName = keyof Shapes
