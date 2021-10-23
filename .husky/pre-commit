@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-eval "yarn lint"
+eval "npx tsc && yarn lint"

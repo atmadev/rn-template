@@ -6,7 +6,7 @@ import { Profile, RootTabScreenProps } from 'shared/types'
 import { searchProfile } from 'services/localDB'
 // import stubProfiles from './stubProfiles.json'
 
-type ResultItem = Pick<Profile, 'id' | 'firstName' | 'lastName'>
+type ResultItem = Pick<Profile, 'uid' | 'firstName' | 'lastName'>
 
 export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 	const [result, setResult] = React.useState<ResultItem[]>([])
