@@ -48,10 +48,13 @@ const createTableFromScratch = <UsedShapeName extends ShapeName>(
 	shapeName: UsedShapeName,
 	schemaItem: SQLSchema<UsedShapeName>[UsedShapeName],
 ) => {
-	const createdColumns = mapKeys(shapeName, (key, _, flags, required) => {
+	const createdColumns = mapKeys(shapeName, (key, type, flags, required) => {
 		if (flags.includes('transient')) return null
 		let columnDefinition = key
-		if (schemaItem.primaryKey === key) columnDefinition += ' PRIMARY KEY'
+		if (schemaItem.primaryKey === key) {
+			if (type === '_number') columnDefinition += ' INTEGER'
+			columnDefinition += ' PRIMARY KEY'
+		}
 		if (required) columnDefinition += ' NOT NULL'
 		return columnDefinition
 	})
@@ -59,10 +62,10 @@ const createTableFromScratch = <UsedShapeName extends ShapeName>(
 	tx.query(`CREATE TABLE ${shapeName} (${createdColumns.join(', ')})`)
 	// prettier-ignore
 	schemaItem.unique?.forEach((columns) =>
-				tx.query(`CREATE UNIQUE INDEX ${indexName(shapeName, columns as string[])} ON ${shapeName} (${columns.join(', ')})`))
+		tx.query(`CREATE UNIQUE INDEX ${indexName(shapeName, columns as string[])} ON ${shapeName} (${columns.join(', ')})`))
 	// prettier-ignore
 	schemaItem.index?.forEach((columns) =>
-				tx.query(`CREATE INDEX IF NOT EXISTS ${indexName(shapeName, columns as string[])} ON ${shapeName} (${columns.join(', ')})`))
+		tx.query(`CREATE INDEX IF NOT EXISTS ${indexName(shapeName, columns as string[])} ON ${shapeName} (${columns.join(', ')})`))
 }
 
 const createTablesFromScratch = <UsedShapeName extends ShapeName>(
@@ -121,7 +124,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 						// prettier-ignore
 						if (required) throw new Error('SQLiteEngine error: tried to add required field ' + key + ' to the existing table ' + shapeName)
 						// prettier-ignore
-						if (schemaItem.primaryKey === key)  throw new Error('SQLiteEngine error: tried to add primary field ' + key + ' to the existing table ' + shapeName)
+						if (schemaItem.primaryKey === key) throw new Error('SQLiteEngine error: tried to add primary field ' + key + ' to the existing table ' + shapeName)
 						// ADD COLUMN
 						tx.query(`ALTER TABLE ${shapeName} ADD ${key}`)
 					}
@@ -160,11 +163,12 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 
 // prettier-ignore
 const migrateIndex = <UsedShapeName extends ShapeName>(
-	unique:0 | 1, { tx, shapeName, schemaItem, indexListMap }: {
-	tx: Transaction,
-	shapeName: UsedShapeName,
-	schemaItem: SQLSchema<UsedShapeName>[UsedShapeName],
-	indexListMap: { [name: string]: SQLIndexInfo }}
+	unique: 0 | 1, { tx, shapeName, schemaItem, indexListMap }: {
+		tx: Transaction,
+		shapeName: UsedShapeName,
+		schemaItem: SQLSchema<UsedShapeName>[UsedShapeName],
+		indexListMap: { [name: string]: SQLIndexInfo }
+	}
 ) => {
 	const list = unique ? schemaItem.unique : schemaItem.index
 
@@ -177,7 +181,7 @@ const migrateIndex = <UsedShapeName extends ShapeName>(
 			index = null
 		}
 		// prettier-ignore
-		if (!index)	tx.query(`CREATE${unique ? ' UNIQUE' : ''} INDEX ${name} ON ${shapeName} (${columns.join(', ')})`)
+		if (!index) tx.query(`CREATE${unique ? ' UNIQUE' : ''} INDEX ${name} ON ${shapeName} (${columns.join(', ')})`)
 
 		delete indexListMap[name]
 	})
