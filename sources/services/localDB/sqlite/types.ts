@@ -1,16 +1,16 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 
-type Notted<T extends string> = T | `NOT ${T}`
+type NOT<T extends string> = T | `NOT ${T}`
 
 type ComparsionOperator = '=' | '>' | '<' | '>=' | '<=' | '<>'
-type BetweenOperator = Notted<'BETWEEN'>
-type InOperator = Notted<'IN'>
-type RangeOperator = BetweenOperator | InOperator
+type BETWEEN = NOT<'BETWEEN'>
+type IN = NOT<'IN'>
+type RangeOperator = BETWEEN | IN
 type BasicOperator = ComparsionOperator | RangeOperator
-type LikeOperator = Notted<'LIKE'>
-type IsOperator = 'IS'
-type IsValue = Notted<'NULL'>
-type Operator = ComparsionOperator | InOperator | LikeOperator | BetweenOperator | IsOperator
+type LIKE = NOT<'LIKE'>
+type IS = 'IS'
+type IsValue = NOT<'NULL'>
+type Operator = ComparsionOperator | IN | LIKE | BETWEEN | IS
 export type ColumnTypes = number | string | boolean
 
 export type Querible<T> = {
@@ -31,20 +31,24 @@ type IndexItem<Key> = Key | `${string & Key} DESC`
 
 // prettier-ignore
 export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K], undefined>> =
-	O extends InOperator ? V[]
-	: O extends BetweenOperator ? [V, V]
-	: O extends LikeOperator ? string
-	: O extends IsOperator ? IsValue
-	: V
+	O extends IN ? V[]
+	: O extends BETWEEN ? [V, V]
+	: O extends LIKE ? string
+	: O extends IS ? IsValue
+	: V | keyof FilterValueTypes<T, V | undefined>
 
-type MapExtract<T, S, MAP> = Extract<T, S> extends never ? never : MAP
+type FilterValueTypes<O, T> = {
+	[K in keyof O as O[K] extends T ? K : never]: O[K]
+}
+
+type ExtractAndMap<T, S, MAP> = Extract<T, S> extends never ? never : MAP
 
 // prettier-ignore
 export type AllowedOperators<T> =
-	MapExtract<T, undefined, IsOperator>
-	| MapExtract<T, string, BasicOperator | LikeOperator>
-	| MapExtract<T, boolean, '='>
-	| MapExtract<T, number, BasicOperator>
+	ExtractAndMap<T, undefined, IS>
+	| ExtractAndMap<T, string, BasicOperator | LIKE>
+	| ExtractAndMap<T, boolean, '='>
+	| ExtractAndMap<T, number, BasicOperator>
 
 export type SQLColumnInfo = {
 	cid: number

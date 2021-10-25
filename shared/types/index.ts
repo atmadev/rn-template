@@ -8,6 +8,8 @@ import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/n
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { ExpandDeep, Shaped } from './primitives'
 
+import * as aShapes from './shapes'
+
 export type RootStackParamList = {
 	Root: NavigatorScreenParams<RootTabParamList> | undefined
 	Modal: undefined
@@ -30,3 +32,6 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 >
 
 export type Profile = ExpandDeep<Shaped<'Profile'>>
+export type Entry = ExpandDeep<Shaped<'Entry'>>
+
+export const shapes = aShapes

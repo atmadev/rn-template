@@ -1,5 +1,5 @@
 // prettier-ignore
-import { primitiveTypes, Type, Flag, Shape} from './primitives'
+import { primitiveTypes, Type, Flag, Shape } from './primitives'
 
 // TODO: think about advances ShapeItems with factoryMethods
 const { string, number, boolean, any, TRUE } = primitiveTypes
@@ -11,13 +11,13 @@ const r = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, f
 
 const shape = <T extends Shape>(s: T) => s
 
-const CustomField = shape({
+export const CustomField = shape({
 	name: r(string),
 	type: r(string),
 	id: r(string, 'local'),
 })
 
-const Profile = shape({
+export const Profile = shape({
 	uid: r(string, 'local'),
 	firstName: string,
 	lastName: string,
@@ -27,7 +27,7 @@ const Profile = shape({
 	dateUpdated: r(number),
 })
 
-const ProfileConfig = shape({
+export const ProfileConfig = shape({
 	uid: r(string, 'local'),
 	lastCustomFieldID: r(number),
 	standardFields: {
@@ -44,7 +44,7 @@ const ProfileConfig = shape({
 })
 
 // prettier-ignore
-const Entry = shape({
+export const Entry = shape({
 	w: number,  // wake
 	m: boolean, // mangala arati
 	7: number,  // japa before 7:30
@@ -65,7 +65,5 @@ const Entry = shape({
 	uid: r(string, 'local'),
 })
 
-// type E = ExpandDeep<Shaped<'Entry'>>
+// type E = ExpandDeep<Shaped<'ProfileConfig'>>
 // type P = ExpandDeep<Shaped<'Profile'>>
-
-export const shapes = { Profile, Entry, CustomField, ProfileConfig }

@@ -11,7 +11,7 @@ export class SelectQuery<
 	Object = PersistentShaped<TableName>,
 	QueribleObject = Querible<Object>,
 	QueribleColumn = keyof QueribleObject,
-> {
+	> {
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleColumn>[] = []
 	private readonly table: TableName
@@ -24,10 +24,11 @@ export class SelectQuery<
 	// prettier-ignore
 	private sql(limit?: number, offset?: number) {
 		const args = this.whereBuilder.args
+		// TODO: select all columns manually to prevent droppped columns fetching
 		const sql =
 			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'}
 			 FROM ${this.table}` +
-			 this.whereBuilder.clause +
+			this.whereBuilder.clause +
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(', ') : '') +
 			(limit ? '\nLIMIT ' + limit + (offset ? ' OFFSET ' + offset : '') : '')
 
@@ -96,15 +97,15 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 		})
 		// prettier-ignore
 		const sql =
-			'INSERT OR REPLACE INTO ' + this.table + '\n(' + columns.map(c => c.key).join(', ') + ') ' + 
+			'INSERT OR REPLACE INTO ' + this.table + '\n(' + columns.map(c => c.key).join(', ') + ') ' +
 			'VALUES\n' + this.objects.map((o) => ('(' +
-				columns.map(({key, type}) => {
+				columns.map(({ key, type }) => {
 					// @ts-ignore
 					const value = o[key] ?? ''
 					args.push(typeof type === 'object' ? JSON.stringify(value) : value)
 					return '?'
 				}).join(',') +
-			')')).join(',\n')
+				')')).join(',\n')
 
 		return { sql, args }
 	}
@@ -119,7 +120,7 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 export class UpdateQuery<
 	TableName extends ShapeName,
 	Object = Partial<PersistentShaped<TableName>>,
-> {
+	> {
 	readonly table: TableName
 	readonly object: Object
 
@@ -135,7 +136,7 @@ export class UpdateQuery<
 			Object.entries(this.object).map(([k, v]) => {
 				args.push(typeof v === 'object' ? JSON.stringify(v) : v)
 				return k + ' = ?'
-			}).join(', ') + 
+			}).join(', ') +
 			this.whereBuilder.clause
 
 		args.push(...this.whereBuilder.args)
@@ -184,13 +185,10 @@ export class DeleteQuery<TableName extends ShapeName> {
 
 class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShaped<TableName>> {
 	readonly items: WhereItem[][] = []
-	private readonly actions: Actions
+	private readonly _actions: Actions
 
 	constructor(actions: Actions) {
-		this.actions = {
-			where: this.where,
-			...actions,
-		}
+		this._actions = actions
 	}
 
 	get args() {
@@ -203,60 +201,60 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	get clause() {
 		return this.items.length > 0 ?
 			' WHERE ' + this.items.map((items) =>
-			 	 (items.length > 1 ? '(' : '') +
-					items.map((i) =>
-						i.key + ' ' + i.operator + ' ' + (
-							i.operator.includes('BETWEEN') ? '? AND ?' 																		: 
-							i.operator.includes('IN') 		 ? '(' + i.value.map(() => '?').join(',') + ')' : 
-							i.operator === 'IS'					   ? i.value 																			: '?'
+				(items.length > 1 ? '(' : '') +
+				items.map((i) =>
+					i.key + ' ' + i.operator + ' ' + (
+						i.operator.includes('BETWEEN') ? '? AND ?' :
+							i.operator.includes('IN') ? '(' + i.value.map(() => '?').join(',') + ')' :
+								i.operator === 'IS' ? i.value : '?'
 					)).join(' OR ') +
-					(items.length > 1 ? ')' : ''),
+				(items.length > 1 ? ')' : ''),
 			).join(' AND ') : ''
 	}
 
 	where = <
 		K extends keyof Querible<PersistentShaped<TableName>>,
 		O extends AllowedOperators<Querible<PersistentShaped<TableName>>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<PersistentShaped<TableName>>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<PersistentShaped<TableName>>, K, O>,
 	) => {
 		this.items.push([{ key: key as string, operator, value }])
 		return {
 			and: this.andWhere,
 			or: this.orWhere,
-			...this.actions,
+			...this._actions,
 		}
 	}
 
 	private orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<Object>, K, O>,
 	) => {
 		getLast(this.items)?.push({ key: key as string, operator, value })
 		return {
 			or: this.orWhere,
-			...this.actions,
+			...this._actions,
 		}
 	}
 
 	private andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-	>(
-		key: K,
-		operator: O,
-		value: InferValue<Querible<Object>, K, O>,
+		>(
+			key: K,
+			operator: O,
+			value: InferValue<Querible<Object>, K, O>,
 	) => {
 		this.items.push([{ key: key as string, operator, value }])
 		return {
 			and: this.andWhere,
-			...this.actions,
+			...this._actions,
 		}
 	}
 
@@ -280,5 +278,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 			this.items.push([{ key, operator: '=', value }]),
 		)
 		return this.actions
+	}
+
+	get actions() {
+		return {
+			where: this.where,
+			...this._actions
+		}
 	}
 }

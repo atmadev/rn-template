@@ -1,7 +1,7 @@
 import { transaction, Transaction } from './engine'
 import { pick, hash, mapFromArray } from 'services/utils'
 import { ShapeName } from 'shared/types/primitives'
-import { shapes } from 'shared/types/shapes'
+import { shapes } from 'shared/types'
 import { mapKeys } from 'shared/types/utils'
 import { indexList, tableInfo } from './engine'
 import { SQLSchema, SQLIndexInfo } from './types'
@@ -136,7 +136,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			const indexList = indexLists[i]
 			const indexListMap = mapFromArray(indexList, 'name')
 
-			// TODO: create my own schema index map, merge regular and unique indexes, unique whould override regular
+			// TODO: create my own schema index map, merge regular and unique indexes, unique will override regular
 
 			const params = { tx, shapeName, schemaItem, indexListMap }
 			migrateIndex(1, params)
@@ -148,6 +148,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			}
 
 			// DROP COLUMNS
+			// TODO: remove all values from dropped column
 			// TODO: uncomment when will be supported, add sqlite version check
 			// It should be done after indexes dropping
 			// for (const deletedColumn in tableInfoMap) {
