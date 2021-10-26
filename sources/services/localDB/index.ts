@@ -31,6 +31,7 @@ export const searchProfile = (searchString: string) =>
 		.orderBy('spiritualName NULL LAST', 'firstName', 'lastName')
 		.fetch(30)
 
+// TODO: Test it
 export const insertEntries = (entries: Entry[]) =>
 	db.table('Entry').insert(...entries)
 
@@ -49,4 +50,5 @@ export const entriesToSync = (uid: string) =>
 		.select()
 		.match({ uid })
 		.where('dateSynced', 'IS', 'NULL')
-		.or('dateSynced', '<', 'du').fetch()
+		.or('dateSynced', '<', 'du', true)
+		.fetch()

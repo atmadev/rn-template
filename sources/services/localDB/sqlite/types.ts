@@ -20,7 +20,8 @@ export type Querible<T> = {
 export type WhereItem = {
 	key: string
 	operator: Operator
-	value: any
+	arg: any
+	isArgKey?: true
 }
 
 type OrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
@@ -37,7 +38,7 @@ export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K
 	: O extends IS ? IsValue
 	: V | keyof FilterValueTypes<T, V | undefined>
 
-type FilterValueTypes<O, T> = {
+export type FilterValueTypes<O, T> = {
 	[K in keyof O as O[K] extends T ? K : never]: O[K]
 }
 

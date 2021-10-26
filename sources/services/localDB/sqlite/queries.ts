@@ -193,7 +193,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	get args() {
 		return this.items.flatMap((items) =>
-			items.flatMap((i) => i.value).filter((v) => v !== 'NULL' && v !== 'NOT NULL'),
+			items.filter(i => i.operator !== 'IS' && i.isArgKey === undefined).flatMap((i) => i.arg),
 		)
 	}
 
@@ -203,24 +203,26 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 			' WHERE ' + this.items.map((items) =>
 				(items.length > 1 ? '(' : '') +
 				items.map((i) =>
-					i.key + ' ' + i.operator + ' ' + (
+					i.key + ' ' + i.operator + ' ' + i.isArgKey ? + i.arg : (
 						i.operator.includes('BETWEEN') ? '? AND ?' :
-							i.operator.includes('IN') ? '(' + i.value.map(() => '?').join(',') + ')' :
-								i.operator === 'IS' ? i.value : '?'
+							i.operator.includes('IN') ? '(' + i.arg.map(() => '?').join(',') + ')' :
+								i.operator === 'IS' ? i.arg : '?'
 					)).join(' OR ') +
 				(items.length > 1 ? ')' : ''),
 			).join(' AND ') : ''
 	}
 
 	where = <
-		K extends keyof Querible<PersistentShaped<TableName>>,
-		O extends AllowedOperators<Querible<PersistentShaped<TableName>>[K]>,
-		>(
-			key: K,
-			operator: O,
-			value: InferValue<Querible<PersistentShaped<TableName>>, K, O>,
+		K extends keyof Querible<Object>,
+		O extends AllowedOperators<Querible<Object>[K]>,
+		V extends InferValue<Querible<Object>, K, O>
+	>(
+		key: K,
+		operator: O,
+		arg: V,
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined
 	) => {
-		this.items.push([{ key: key as string, operator, value }])
+		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return {
 			and: this.andWhere,
 			or: this.orWhere,
@@ -231,12 +233,14 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-		>(
-			key: K,
-			operator: O,
-			value: InferValue<Querible<Object>, K, O>,
+		V extends InferValue<Querible<Object>, K, O>
+	>(
+		key: K,
+		operator: O,
+		arg: V,
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined
 	) => {
-		getLast(this.items)?.push({ key: key as string, operator, value })
+		getLast(this.items)?.push({ key: key as string, operator, arg, isArgKey })
 		return {
 			or: this.orWhere,
 			...this._actions,
@@ -246,12 +250,14 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-		>(
-			key: K,
-			operator: O,
-			value: InferValue<Querible<Object>, K, O>,
+		V extends InferValue<Querible<Object>, K, O>
+	>(
+		key: K,
+		operator: O,
+		arg: V,
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined
 	) => {
-		this.items.push([{ key: key as string, operator, value }])
+		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return {
 			and: this.andWhere,
 			...this._actions,
@@ -260,22 +266,22 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	search = (
 		string: string,
-		...keys: Array1_5<keyof FilterType<Querible<PersistentShaped<TableName>>, string | undefined>>
+		...keys: Array1_5<keyof FilterType<Querible<Object>, string | undefined>>
 	) => {
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
 
 		if (subStrings.length === 0) return this.actions
 
 		subStrings.forEach((s) =>
-			this.items.push(keys.map((key: any) => ({ key, operator: 'LIKE', value: `${s}%` }))),
+			this.items.push(keys.map((key: any) => ({ key, operator: 'LIKE', arg: `${s}%` }))),
 		)
 
 		return this.actions
 	}
 
 	match = (object: Partial<Querible<Object>>) => {
-		Object.entries(object).forEach(([key, value]) =>
-			this.items.push([{ key, operator: '=', value }]),
+		Object.entries(object).forEach(([key, arg]) =>
+			this.items.push([{ key, operator: '=', arg }]),
 		)
 		return this.actions
 	}
