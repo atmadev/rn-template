@@ -4,7 +4,11 @@
  */
 
 import * as React from 'react'
-import { Text as DefaultText, TextInput as DefaultTextInput, View as DefaultView } from 'react-native'
+import {
+	Text as DefaultText,
+	TextInput as DefaultTextInput,
+	View as DefaultView,
+} from 'react-native'
 
 import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'

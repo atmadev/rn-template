@@ -14,7 +14,10 @@ const schema: SQLSchema<UsedShapeNames> = {
 	},
 	Entry: {
 		unique: [['month DESC', 'day DESC', 'uid']],
-		index: [['uid', 'dateSynced'], ['uid', 'month DESC']],
+		index: [
+			['uid', 'dateSynced'],
+			['uid', 'month DESC'],
+		],
 	},
 }
 
@@ -32,21 +35,21 @@ export const searchProfile = (searchString: string) =>
 		.fetch(30)
 
 // TODO: Test it
-export const insertEntries = (entries: Entry[]) =>
-	db.table('Entry').insert(...entries)
+export const insertEntries = (entries: Entry[]) => db.table('Entry').insert(...entries)
 
-export const updateEntry = (uid: string, month: string, day: number, entry: Partial<Omit<Entry, 'uid' | 'month' | 'day'>>) =>
-	db.table('Entry').update(entry).match({ uid, month, day }).run()
+export const updateEntry = (
+	uid: string,
+	month: string,
+	day: number,
+	entry: Partial<Omit<Entry, 'uid' | 'month' | 'day'>>,
+) => db.table('Entry').update(entry).match({ uid, month, day }).run()
 
 export const entries = (uid: string, month: string) =>
-	db.table('Entry')
-		.select()
-		.match({ uid, month })
-		.orderBy('day DESC')
-		.fetch()
+	db.table('Entry').select().match({ uid, month }).orderBy('day DESC').fetch()
 
 export const entriesToSync = (uid: string) =>
-	db.table('Entry')
+	db
+		.table('Entry')
 		.select()
 		.match({ uid })
 		.where('dateSynced', 'IS', 'NULL')

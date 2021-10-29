@@ -10,7 +10,7 @@ export class SelectQuery<
 	SelectedColumn extends keyof Object,
 	Object = PersistentShaped<TableName>,
 	QueribleObject = Querible<Object>,
-	> {
+> {
 	private readonly selectedColumns: SelectedColumn[] = []
 	private readonly orderItems: OrderItem<QueribleObject>[] = []
 	private readonly table: TableName
@@ -34,7 +34,7 @@ export class SelectQuery<
 		return { sql, args }
 	}
 
-	orderBy = (...keys: (OrderItem<QueribleObject>)[]) => {
+	orderBy = (...keys: OrderItem<QueribleObject>[]) => {
 		this.orderItems.push(...keys)
 		return { fetch: this.fetch }
 	}
@@ -119,7 +119,7 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 export class UpdateQuery<
 	TableName extends ShapeName,
 	Object = Partial<PersistentShaped<TableName>>,
-	> {
+> {
 	readonly table: TableName
 	readonly object: Object
 
@@ -192,7 +192,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	get args() {
 		return this.items.flatMap((items) =>
-			items.filter(i => i.operator !== 'IS' && i.isArgKey === undefined).flatMap((i) => i.arg),
+			items.filter((i) => i.operator !== 'IS' && i.isArgKey === undefined).flatMap((i) => i.arg),
 		)
 	}
 
@@ -203,10 +203,10 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 				(items.length > 1 ? '(' : '') +
 				items.map((i) =>
 					i.key + ' ' + i.operator + ' ' + i.isArgKey ? + i.arg : (
-						i.operator.includes('BETWEEN') ? '? AND ?' :
-							i.operator.includes('IN') ? '(' + i.arg.map(() => '?').join(',') + ')' :
-								i.operator === 'IS' ? i.arg : '?'
-					)).join(' OR ') +
+					i.operator.includes('BETWEEN') ? '? AND ?' :
+				 	i.operator.includes('IN') ? '(' + i.arg.map(() => '?').join(',') + ')' :
+				  i.operator === 'IS' ? i.arg : '?'
+				)).join(' OR ') +
 				(items.length > 1 ? ')' : ''),
 			).join(' AND ') : ''
 	}
@@ -214,12 +214,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	where = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>
+		V extends InferValue<Querible<Object>, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return {
@@ -232,12 +232,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private orWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>
+		V extends InferValue<Querible<Object>, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		getLast(this.items)?.push({ key: key as string, operator, arg, isArgKey })
 		return {
@@ -249,12 +249,12 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	private andWhere = <
 		K extends keyof Querible<Object>,
 		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>
+		V extends InferValue<Querible<Object>, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined
+		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return {
@@ -279,16 +279,14 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	}
 
 	match = (object: Partial<Querible<Object>>) => {
-		Object.entries(object).forEach(([key, arg]) =>
-			this.items.push([{ key, operator: '=', arg }]),
-		)
+		Object.entries(object).forEach(([key, arg]) => this.items.push([{ key, operator: '=', arg }]))
 		return this.actions
 	}
 
 	get actions() {
 		return {
 			where: this.where,
-			...this._actions
+			...this._actions,
 		}
 	}
 }

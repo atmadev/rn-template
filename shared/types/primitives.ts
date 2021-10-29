@@ -74,8 +74,7 @@ export type PersistentShaped<SN extends ShapeName> = _PersistentShaped<Shapes[SN
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never
 export type ExpandDeep<T> = T extends object
 	? T extends infer O
-	? { [K in keyof O]: ExpandDeep<O[K]> }
-	: never
+	? { [K in keyof O]: ExpandDeep<O[K]> } : never
 	: T
 
 export const TRUE = true as const

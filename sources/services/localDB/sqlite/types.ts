@@ -24,13 +24,14 @@ export type WhereItem = {
 	isArgKey?: true
 }
 
-
 type NotNullOrderItem<Key> = Key | `${string & Key} DESC`
 
 type NullableOrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
 type NullableOrderItem<Key> = Key | `${string & Key} ${string & NullableOrderModifier}`
 
-export type OrderItem<T> = { [K in keyof T]-?: IsContain<T[K], undefined, NullableOrderItem<K>, NotNullOrderItem<K>> }[keyof T]
+export type OrderItem<T> = {
+	[K in keyof T]-?: IsContain<T[K], undefined, NullableOrderItem<K>, NotNullOrderItem<K>>
+}[keyof T]
 
 // prettier-ignore
 export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K], undefined>> =
@@ -71,7 +72,7 @@ export type SQLIndexInfo = {
 	unique: 0 | 1
 }
 
-export type SQLSchema<ShapeNames extends ShapeName,> = {
+export type SQLSchema<ShapeNames extends ShapeName> = {
 	[SN in ShapeNames]: {
 		primaryKey?: keyof Querible<PersistentShaped<SN>>
 		unique?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
