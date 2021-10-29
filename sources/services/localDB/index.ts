@@ -13,11 +13,8 @@ const schema: SQLSchema<UsedShapeNames> = {
 		primaryKey: 'uid',
 	},
 	Entry: {
-		unique: [['month DESC', 'day DESC', 'uid']],
-		index: [
-			['uid', 'dateSynced'],
-			['uid', 'month DESC'],
-		],
+		unique: [['uid', 'd DESC']],
+		index: [['uid', 'dateSynced']],
 	},
 }
 
@@ -37,16 +34,13 @@ export const searchProfile = (searchString: string) =>
 // TODO: Test it
 export const insertEntries = (entries: Entry[]) => db.table('Entry').insert(...entries)
 
-export const updateEntry = (
-	uid: string,
-	month: string,
-	day: number,
-	entry: Partial<Omit<Entry, 'uid' | 'month' | 'day'>>,
-) => db.table('Entry').update(entry).match({ uid, month, day }).run()
+export const updateEntry = (uid: string, d: number, entry: Partial<Omit<Entry, 'uid' | 'd'>>) =>
+	db.table('Entry').update(entry).match({ uid, d }).run()
 
+/*
 export const entries = (uid: string, month: string) =>
-	db.table('Entry').select().match({ uid, month }).orderBy('day DESC').fetch()
-
+	db.table('Entry').select().match({ uid }).where('d', '>', ).orderBy('d DESC').fetch()
+*/
 export const entriesToSync = (uid: string) =>
 	db
 		.table('Entry')

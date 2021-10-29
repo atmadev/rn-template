@@ -59,11 +59,10 @@ export const Entry = shape({
 	n: string,  // notes
 	b: string,  // bed
 	c: { [string]: any }, // custom fields
-	du: number, // date updated
+	d: r(number), // date
+	du: r(number), // date updated
 	dateSynced: _(number, 'local'),
 	vsDateSynced: _(number, 'local'),
-	month: r(string, 'local'),
-	day: r(number, 'local'),
 	uid: r(string, 'local'),
 })
 
