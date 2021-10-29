@@ -31,13 +31,13 @@ export const ProfileConfig = shape({
 	uid: r(string, 'local'),
 	lastCustomFieldID: r(number),
 	standardFields: {
-		w: TRUE,
-		m: TRUE,
-		s: TRUE,
-		y: TRUE,
-		l: TRUE,
-		n: TRUE,
-		b: TRUE,
+		wake: TRUE,
+		mangala: TRUE,
+		service: TRUE,
+		yoga: TRUE,
+		lectures: TRUE,
+		notes: TRUE,
+		bed: TRUE,
 	},
 	customFields: { [string]: CustomField },
 	dateUpdated: r(number),
@@ -45,23 +45,25 @@ export const ProfileConfig = shape({
 
 // prettier-ignore
 export const Entry = shape({
-	w: number,  // wake
+	w: string,  // wake
 	m: boolean, // mangala arati
 	7: number,  // japa before 7:30
 	10: number, // japa before 10:00
 	18: number, // japa before 18:00
 	24: number, // japa before 00:00
-	r: boolean, // reading
+	r: number, // reading, minutes
 	k: boolean, // kirtan
 	s: boolean, // service
 	y: boolean, // yoga
 	l: boolean, // lectures
 	n: string,  // notes
-	b: number,  // bed
+	b: string,  // bed
 	c: { [string]: any }, // custom fields
 	du: number, // date updated
 	dateSynced: _(number, 'local'),
-	date: r(number, 'local'),
+	vsDateSynced: _(number, 'local'),
+	month: r(string, 'local'),
+	day: r(number, 'local'),
 	uid: r(string, 'local'),
 })
 

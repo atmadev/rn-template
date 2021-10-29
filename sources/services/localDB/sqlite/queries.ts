@@ -10,10 +10,9 @@ export class SelectQuery<
 	SelectedColumn extends keyof Object,
 	Object = PersistentShaped<TableName>,
 	QueribleObject = Querible<Object>,
-	QueribleColumn = keyof QueribleObject,
 	> {
 	private readonly selectedColumns: SelectedColumn[] = []
-	private readonly orderItems: OrderItem<QueribleColumn>[] = []
+	private readonly orderItems: OrderItem<QueribleObject>[] = []
 	private readonly table: TableName
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
@@ -35,7 +34,7 @@ export class SelectQuery<
 		return { sql, args }
 	}
 
-	orderBy = (...keys: OrderItem<QueribleColumn>[]) => {
+	orderBy = (...keys: (OrderItem<QueribleObject>)[]) => {
 		this.orderItems.push(...keys)
 		return { fetch: this.fetch }
 	}

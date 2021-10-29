@@ -24,11 +24,13 @@ export type WhereItem = {
 	isArgKey?: true
 }
 
-type OrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
 
-export type OrderItem<Key> = Key | `${string & Key} ${string & OrderModifier}`
+type NotNullOrderItem<Key> = Key | `${string & Key} DESC`
 
-type IndexItem<Key> = Key | `${string & Key} DESC`
+type NullableOrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
+type NullableOrderItem<Key> = Key | `${string & Key} ${string & NullableOrderModifier}`
+
+export type OrderItem<T> = { [K in keyof T]-?: IsContain<T[K], undefined, NullableOrderItem<K>, NotNullOrderItem<K>> }[keyof T]
 
 // prettier-ignore
 export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K], undefined>> =
@@ -42,7 +44,8 @@ export type FilterValueTypes<O, T> = {
 	[K in keyof O as O[K] extends T ? K : never]: O[K]
 }
 
-type ExtractAndMap<T, S, MAP> = Extract<T, S> extends never ? never : MAP
+export type IsContain<T, S, YES, NO> = Extract<T, S> extends never ? NO : YES
+export type ExtractAndMap<T, S, MAP> = IsContain<T, S, MAP, never>
 
 // prettier-ignore
 export type AllowedOperators<T> =
@@ -68,11 +71,11 @@ export type SQLIndexInfo = {
 	unique: 0 | 1
 }
 
-export type SQLSchema<ShapeNames extends ShapeName> = {
+export type SQLSchema<ShapeNames extends ShapeName,> = {
 	[SN in ShapeNames]: {
-		primaryKey?: keyof PersistentShaped<SN>
-		unique?: IndexItem<keyof PersistentShaped<SN>>[][]
-		index?: IndexItem<keyof PersistentShaped<SN>>[][]
+		primaryKey?: keyof Querible<PersistentShaped<SN>>
+		unique?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
+		index?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
 		namesHistory?: {
 			// eslint-disable-next-line no-unused-vars
 			[_ in keyof PersistentShaped<SN>]?: string[]
