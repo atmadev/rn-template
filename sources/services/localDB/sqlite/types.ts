@@ -26,7 +26,7 @@ export type WhereItem = {
 
 type NotNullOrderItem<Key> = Key | `${string & Key} DESC`
 
-type NullableOrderModifier = 'DESC' | 'NULL LAST' | 'DESC NULL FIRST'
+type NullableOrderModifier = 'DESC' | 'NULLS LAST' | 'DESC NULLS FIRST'
 type NullableOrderItem<Key> = Key | `${string & Key} ${string & NullableOrderModifier}`
 
 export type OrderItem<T> = {

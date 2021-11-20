@@ -45,19 +45,19 @@ export const ProfileConfig = shape({
 
 // prettier-ignore
 export const Entry = shape({
-	w: string,  // wake
+	w: number,  // wake, number of minutes after 00:00
 	m: boolean, // mangala arati
-	7: number,  // japa before 7:30
-	10: number, // japa before 10:00
-	18: number, // japa before 18:00
-	24: number, // japa before 00:00
+	j7: number,  // japa before 7:30
+	j10: number, // japa before 10:00
+	j18: number, // japa before 18:00
+	j24: number, // japa before 00:00
 	r: number, // reading, minutes
 	k: boolean, // kirtan
 	s: boolean, // service
 	y: boolean, // yoga
 	l: boolean, // lectures
 	n: string,  // notes
-	b: string,  // bed
+	b: number,  // bed, number of minutes after 00:00
 	c: { [string]: any }, // custom fields
 	d: r(number), // date
 	du: r(number), // date updated

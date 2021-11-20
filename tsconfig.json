@@ -18,7 +18,8 @@
 		"baseUrl": "./sources/",
 		"paths": {
 			"assets/*": ["../assets/*"],
-			"shared/*": ["../shared/*"]
+			"shared/*": ["../shared/*"],
+			"resources/*": ["../resources/*"],
 		}
 	},
 	"include": ["sources/**/*", "shared/**/*", "App.tsx"]

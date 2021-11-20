@@ -21,6 +21,13 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
 	Screen
 >
 
+export type SQLStackParamList = { SQLTestLab: undefined; SearchProfile: undefined }
+
+export type SQLStackScreenProps<Screen extends keyof SQLStackParamList> = NativeStackScreenProps<
+	SQLStackParamList,
+	Screen
+>
+
 export type RootTabParamList = {
 	TabOne: undefined
 	TabTwo: undefined
@@ -32,6 +39,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 >
 
 export type Profile = ExpandDeep<Shaped<'Profile'>>
+export type ProfileConfig = ExpandDeep<Shaped<'ProfileConfig'>>
 export type Entry = ExpandDeep<Shaped<'Entry'>>
 
 export const shapes = aShapes

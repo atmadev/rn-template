@@ -2,13 +2,12 @@ import * as React from 'react'
 import { FlatList, ListRenderItem, StyleSheet } from 'react-native'
 
 import { Text, View, TextInput } from 'components/Themed'
-import { Profile, RootTabScreenProps } from 'shared/types'
+import { Profile } from 'shared/types'
 import { searchProfile } from 'services/localDB'
-// import stubProfiles from './stubProfiles.json'
 
-type ResultItem = Pick<Profile, 'uid' | 'firstName' | 'lastName'>
+type ResultItem = Pick<Profile, 'uid' | 'firstName' | 'lastName' | 'spiritualName'>
 
-export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
+export const SQLiteSearchProfileScreen = () => {
 	const [result, setResult] = React.useState<ResultItem[]>([])
 	const [searchString, setSearchString] = React.useState('')
 
@@ -28,7 +27,7 @@ export const SQLiteTestLabScreen = (_: RootTabScreenProps<'TabOne'>) => {
 
 	return (
 		<View style={styles.container}>
-			<TextInput style={styles.textInput} onChangeText={setSearchString} />
+			<TextInput style={styles.textInput} onChangeText={setSearchString} autoFocus />
 			<FlatList
 				style={styles.flatList}
 				data={result}
@@ -43,13 +42,13 @@ const renderItem: ListRenderItem<ResultItem> = ({ item }) => {
 	return (
 		<View style={styles.itemContainer}>
 			<Text style={styles.itemText}>
-				{item.firstName} {item.lastName}
+				{item.spiritualName} ({item.firstName} {item.lastName})
 			</Text>
 		</View>
 	)
 }
 
-const keyExtractor = (item: any) => item.id
+const keyExtractor = (item: ResultItem) => item.uid
 
 const styles = StyleSheet.create({
 	container: {

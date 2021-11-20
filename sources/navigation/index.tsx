@@ -14,10 +14,16 @@ import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'
 import ModalScreen from 'screens/ModalScreen'
 import NotFoundScreen from 'screens/NotFoundScreen'
-import { SQLiteTestLabScreen } from 'screens/SQLiteTestLabScreen'
+import { SQLiteTestLabScreen } from 'screens/SQLiteTestLab'
 import TabTwoScreen from 'screens/TabTwoScreen'
-import { RootStackParamList, RootTabParamList, RootTabScreenProps } from 'shared/types'
+import {
+	RootStackParamList,
+	RootTabParamList,
+	RootTabScreenProps,
+	SQLStackParamList,
+} from 'shared/types'
 import LinkingConfiguration from './LinkingConfiguration'
+import { SQLiteSearchProfileScreen } from 'screens/SQLiteTestLab/SearchProfileScreen'
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
 	return (
@@ -81,9 +87,10 @@ function BottomTabNavigator() {
 			initialRouteName="TabOne"
 			screenOptions={{
 				tabBarActiveTintColor: Colors[colorScheme].tint,
+				headerShown: false,
 			}}
 		>
-			<BottomTab.Screen name="TabOne" component={SQLiteTestLabScreen} options={options} />
+			<BottomTab.Screen name="TabOne" component={SQLStackNavigator} options={options} />
 			<BottomTab.Screen
 				name="TabTwo"
 				component={TabTwoScreen}
@@ -95,6 +102,15 @@ function BottomTabNavigator() {
 		</BottomTab.Navigator>
 	)
 }
+
+const SQLStack = createNativeStackNavigator<SQLStackParamList>()
+
+const SQLStackNavigator = () => (
+	<SQLStack.Navigator>
+		<SQLStack.Screen name="SQLTestLab" component={SQLiteTestLabScreen} />
+		<SQLStack.Screen name="SearchProfile" component={SQLiteSearchProfileScreen} />
+	</SQLStack.Navigator>
+)
 
 /**
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/

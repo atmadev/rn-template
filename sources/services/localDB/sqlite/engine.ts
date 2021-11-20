@@ -1,7 +1,8 @@
 import { openDatabase, SQLTransaction, SQLError } from 'expo-sqlite'
 import { SQLColumnInfo, SQLIndexInfo } from './types'
 
-const db = openDatabase('dbV3')
+// TODO: test how it works if column type has changed
+const db = openDatabase('rn-template-db1.sqlite')
 
 export const tableInfo = (tables: string[]): Promise<SQLColumnInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))
@@ -19,7 +20,8 @@ const wrapTansaction = (tx: SQLTransaction) => ({
 		console.log(
 			'[SQL]:',
 			query.length > 200 ? query.substr(0, 200) + '...' : query,
-			args && args.length > 0 ? '\nArgs ' + args : '',
+			args && args.length > 0 ? '\nArgs ' + args.slice(0, 50) : '',
+			args && args.length > 50 ? '... more ' + (args.length - 50) + ' args' : '',
 		)
 		// const start = Date.now()
 		tx.executeSql(

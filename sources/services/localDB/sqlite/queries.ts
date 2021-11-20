@@ -25,8 +25,7 @@ export class SelectQuery<
 		const args = this.whereBuilder.args
 		// TODO: select all columns manually to prevent droppped columns fetching
 		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'}
-			 FROM ${this.table}` +
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table}` +
 			this.whereBuilder.clause +
 			(this.orderItems.length > 0 ? '\nORDER BY ' + this.orderItems.join(', ') : '') +
 			(limit ? '\nLIMIT ' + limit + (offset ? ' OFFSET ' + offset : '') : '')
@@ -202,11 +201,11 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 			' WHERE ' + this.items.map((items) =>
 				(items.length > 1 ? '(' : '') +
 				items.map((i) =>
-					i.key + ' ' + i.operator + ' ' + i.isArgKey ? + i.arg : (
+					i.key + ' ' + i.operator + ' ' + (i.isArgKey ? i.arg : (
 					i.operator.includes('BETWEEN') ? '? AND ?' :
 				 	i.operator.includes('IN') ? '(' + i.arg.map(() => '?').join(',') + ')' :
 				  i.operator === 'IS' ? i.arg : '?'
-				)).join(' OR ') +
+				))).join(' OR ') +
 				(items.length > 1 ? ')' : ''),
 			).join(' AND ') : ''
 	}
@@ -268,12 +267,18 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		...keys: Array1_5<keyof FilterType<Querible<Object>, string | undefined>>
 	) => {
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
+		console.log('search', keys, subStrings)
 
 		if (subStrings.length === 0) return this.actions
 
-		subStrings.forEach((s) =>
-			this.items.push(keys.map((key: any) => ({ key, operator: 'LIKE', arg: `${s}%` }))),
-		)
+		subStrings.forEach((s) => {
+			const items = keys.flatMap((key: any) => [
+				{ key, operator: 'LIKE', arg: `${s}%` },
+				{ key, operator: 'LIKE', arg: `${string}%` },
+			])
+
+			this.items.push(items as WhereItem[])
+		})
 
 		return this.actions
 	}

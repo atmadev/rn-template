@@ -1,0 +1,1302 @@
+[
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636958701
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636981181
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636978042
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636926836
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636924845
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636939184
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636962164
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636985208
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636924771
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636967834
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636909965
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636926108
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636958256
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636986028
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636961458
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636952561
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636959746
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636926327
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636957319
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636900978
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636953489
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636949384
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636929321
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636936530
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636940085
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636952745
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636976750
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636905716
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636904899
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636955079
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636965092
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636981049
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636969736
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636970329
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636936227
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636976817
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636925568
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636945258
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636988049
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636907434
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636902267
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636902016
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636938499
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636930739
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636934072
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636931549
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636975935
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636986546
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636935820
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636983383
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636944067
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636988902
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636915657
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636977459
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636928479
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636949977
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636975624
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636961639
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636923296
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636978644
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636909324
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636983833
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636919718
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636922490
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636911801
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636907789
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636958687
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636908087
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636919465
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636939140
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636982306
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636935152
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636962574
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636984670
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636952418
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636977275
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636940920
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636939807
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636922363
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636970999
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636970349
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636965460
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636961906
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636987754
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636941454
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636947360
+  },
+  {
+    "lastCustomFieldID": 1,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636953774
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636915060
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636931443
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": null,
+      "lectures": null,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636925335
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636932780
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": true,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636912114
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": true,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636976721
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": null
+    },
+    "dateUpdated": 1636958533
+  },
+  {
+    "lastCustomFieldID": 4,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": true,
+      "yoga": true,
+      "lectures": true,
+      "notes": null,
+      "bed": null
+    },
+    "dateUpdated": 1636927547
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636977091
+  },
+  {
+    "lastCustomFieldID": 0,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636950312
+  },
+  {
+    "lastCustomFieldID": 2,
+    "standardFields": {
+      "wake": null,
+      "mangala": null,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636951977
+  },
+  {
+    "lastCustomFieldID": 5,
+    "standardFields": {
+      "wake": true,
+      "mangala": true,
+      "service": null,
+      "yoga": null,
+      "lectures": null,
+      "notes": null,
+      "bed": true
+    },
+    "dateUpdated": 1636933327
+  },
+  {
+    "lastCustomFieldID": 3,
+    "standardFields": {
+      "wake": null,
+      "mangala": true,
+      "service": true,
+      "yoga": null,
+      "lectures": true,
+      "notes": true,
+      "bed": true
+    },
+    "dateUpdated": 1636968813
+  }
+]
