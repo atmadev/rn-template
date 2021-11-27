@@ -41,5 +41,6 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 export type Profile = ExpandDeep<Shaped<'Profile'>>
 export type ProfileConfig = ExpandDeep<Shaped<'ProfileConfig'>>
 export type Entry = ExpandDeep<Shaped<'Entry'>>
+export type TestEntity = ExpandDeep<Shaped<'TestEntity'>>
 
 export const shapes = aShapes

@@ -1,0 +1,65 @@
+[
+  {
+    "number": 7,
+    "string": "Govindam Adi Purusham",
+    "boolean": false,
+    "word": "Vasudeva",
+    "nullable": true
+  },
+  {
+    "number": 5,
+    "string": "Vancha Kalpa",
+    "boolean": true,
+    "word": "Hare"
+  },
+  {
+    "number": 7,
+    "string": "Vancha Kalpa",
+    "boolean": false,
+    "word": "Krishna"
+  },
+  {
+    "number": 7,
+    "string": "Hare Rama",
+    "boolean": false,
+    "word": "Rama",
+    "nullable": true
+  },
+  {
+    "number": 1,
+    "string": "Hare Kirshna",
+    "boolean": true,
+    "word": "Sita"
+  },
+  {
+    "number": 4,
+    "string": "Hare Kirshna",
+    "boolean": false,
+    "word": "Krishna",
+    "nullable": true
+  },
+  {
+    "number": 10,
+    "string": "Om Namo Bhagavate Vasudevaya",
+    "boolean": true,
+    "word": "Hari"
+  },
+  {
+    "number": 6,
+    "string": "Govindam Adi Purusham",
+    "boolean": false,
+    "word": "Om"
+  },
+  {
+    "number": 4,
+    "string": "Hare Rama",
+    "boolean": false,
+    "word": "Rama"
+  },
+  {
+    "number": 9,
+    "string": "Om Tat Sat",
+    "boolean": false,
+    "word": "Chaytanya"
+  }
+]

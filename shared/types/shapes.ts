@@ -66,5 +66,13 @@ export const Entry = shape({
 	uid: r(string, 'local'),
 })
 
+export const TestEntity = shape({
+	number: r(number),
+	string: r(string),
+	boolean: r(boolean),
+	nullable: TRUE,
+	word: string,
+})
+
 // type E = ExpandDeep<Shaped<'ProfileConfig'>>
 // type P = ExpandDeep<Shaped<'Profile'>>

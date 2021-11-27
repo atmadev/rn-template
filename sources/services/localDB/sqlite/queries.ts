@@ -1,7 +1,16 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
 import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
-import { Querible, WhereItem, OrderItem, AllowedOperators, InferValue, Array1_5 } from './types'
+import {
+	Querible,
+	WhereItem,
+	OrderItem,
+	AllowedOperators,
+	InferValue,
+	Array1_5,
+	AggregateSelectItem,
+	FilterType,
+} from './types'
 import { readTransaction, transaction } from './engine'
 import { mapKeys } from 'shared/types/utils'
 
@@ -12,6 +21,7 @@ export class SelectQuery<
 	QueribleObject = Querible<Object>,
 > {
 	private readonly selectedColumns: SelectedColumn[] = []
+
 	private readonly orderItems: OrderItem<QueribleObject>[] = []
 	private readonly table: TableName
 
@@ -46,9 +56,7 @@ export class SelectQuery<
 			const { sql, args } = this.sql(limit, offset)
 			tx.query(sql, args, resolve)
 		})
-
 		// const start = Date.now()
-
 		const objectKeys = mapKeys(this.table, (key, type, flags) => {
 			if (
 				flags.includes('transient') ||
@@ -75,7 +83,52 @@ export class SelectQuery<
 	match = this.whereBuilder.match
 }
 
-type FilterType<T, F> = { [K in keyof T as T[K] extends F ? K : never]: T[K] }
+export class AggregateQuery<
+	TableName extends ShapeName,
+	AggregateColumn extends AggregateSelectItem<keyof Object & string>,
+	Object = PersistentShaped<TableName>,
+> {
+	private readonly selectedColumns: AggregateColumn[] = []
+	private readonly table: TableName
+
+	constructor(table: TableName, columns: AggregateColumn[]) {
+		this.table = table
+		this.selectedColumns = columns
+	}
+
+	// prettier-ignore
+	private sql() {
+		const args = this.whereBuilder.args
+		// TODO: select all columns manually to prevent droppped columns fetching
+		const sql =
+			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table}` +
+			this.whereBuilder.clause
+		return { sql, args }
+	}
+
+	// prettier-ignore
+	fetch = async (): Promise<{
+		[P in AggregateColumn]: P extends AggregateSelectItem<infer Key>
+			? Key extends '*' ? number
+			: Key extends keyof Object ? Object[Key]
+			: never : never
+	}> => {
+		
+		const objects = await readTransaction((tx, resolve) => {
+			const { sql, args } = this.sql()
+			tx.query(sql, args, resolve)
+		})
+
+		return objects[0]
+	}
+
+	private actions = { fetch: this.fetch }
+
+	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
+	where = this.whereBuilder.where
+	search = this.whereBuilder.search
+	match = this.whereBuilder.match
+}
 
 export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 	readonly table: TableName
@@ -99,11 +152,13 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 			'VALUES\n' + this.objects.map((o) => ('(' +
 				columns.map(({ key, type }) => {
 					// @ts-ignore
-					const value = o[key] ?? ''
-					args.push(typeof type === 'object' ? JSON.stringify(value) : value)
-					return '?'
+					const value = o[key]
+					if (value !== null && value !== undefined) {
+						args.push(typeof type === 'object' ? JSON.stringify(value) : value)
+						return '?'
+					} else return 'NULL'
 				}).join(',') +
-				')')).join(',\n')
+			')')).join(',\n')
 
 		return { sql, args }
 	}
@@ -221,11 +276,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
-		return {
-			and: this.andWhere,
-			or: this.orWhere,
-			...this._actions,
-		}
+		return { and: this.andWhere, or: this.orWhere, ...this._actions }
 	}
 
 	private orWhere = <
@@ -239,10 +290,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		getLast(this.items)?.push({ key: key as string, operator, arg, isArgKey })
-		return {
-			or: this.orWhere,
-			...this._actions,
-		}
+		return { or: this.orWhere, ...this._actions }
 	}
 
 	private andWhere = <
@@ -256,10 +304,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
-		return {
-			and: this.andWhere,
-			...this._actions,
-		}
+		return { and: this.andWhere, ...this._actions }
 	}
 
 	search = (

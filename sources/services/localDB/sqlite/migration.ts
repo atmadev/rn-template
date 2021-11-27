@@ -12,8 +12,11 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 ) => {
 	// MIGRATION
 	// get db schema hash
+	// TODO: remember sqlite version for check drop column possibility
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
-		// tx.query('SELECT sqlite_version()', undefined, flatLog)
+		tx.query('SELECT sqlite_version()', undefined, (result) =>
+			console.log('sqlite_version:', result[0]['sqlite_version()']),
+		)
 		// tx.query(`SELECT sql FROM sqlite_master`, undefined, console.log)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key PRIMARY KEY NOT NULL, value NOT NULL)')
 		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
@@ -151,9 +154,9 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			// TODO: remove all values from dropped column
 			// TODO: uncomment when will be supported, add sqlite version check
 			// It should be done after indexes dropping
-			// for (const deletedColumn in tableInfoMap) {
-			// 	tx.query(`ALTER TABLE ${shapeName} DROP ${deletedColumn}`)
-			// }
+			for (const deletedColumn in tableInfoMap) {
+				tx.query(`ALTER TABLE ${shapeName} DROP ${deletedColumn}`)
+			}
 		})
 
 		// TODO: drop unused tables

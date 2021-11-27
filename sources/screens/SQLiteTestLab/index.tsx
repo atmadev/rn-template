@@ -8,7 +8,7 @@ import { useCallback } from 'react'
 import profiles from 'resources/profiles.json'
 import profileConfigs from 'resources/profileConfigs.json'
 import entries from 'resources/entries.json'
-import { importEntries, importProfileConfigs, insertProfiles } from 'services/localDB'
+import { importEntries, importProfileConfigs, insertProfiles, runTest } from 'services/localDB'
 
 export const SQLiteTestLabScreen = (_: SQLStackScreenProps<'SQLTestLab'>) => {
 	const openSearchProfile = useCallback(() => {
@@ -19,6 +19,7 @@ export const SQLiteTestLabScreen = (_: SQLStackScreenProps<'SQLTestLab'>) => {
 		<View style={styles.container}>
 			<Button title="Init Data" onPress={initData} />
 			<Button title="Search Profile" onPress={openSearchProfile} />
+			<Button title="Run Test" onPress={runTest} />
 		</View>
 	)
 }

@@ -11,6 +11,7 @@ type LIKE = NOT<'LIKE'>
 type IS = 'IS'
 type IsValue = NOT<'NULL'>
 type Operator = ComparsionOperator | IN | LIKE | BETWEEN | IS
+type AggregateFunction = 'COUNT' | 'AVG' | 'MAX' | 'MIN' | 'SUM' | 'TOTAL'
 export type ColumnTypes = number | string | boolean
 
 export type Querible<T> = {
@@ -55,6 +56,10 @@ export type AllowedOperators<T> =
 	| ExtractAndMap<T, boolean, '='>
 	| ExtractAndMap<T, number, BasicOperator>
 
+type DISTINCT<I extends string> = I | `DISTINCT ${I}`
+
+export type AggregateSelectItem<I extends string> = `${AggregateFunction}(${DISTINCT<I | '*'>})`
+
 export type SQLColumnInfo = {
 	cid: number
 	name: string
@@ -85,3 +90,5 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 }
 
 export type Array1_5<T> = [T] | [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]
+
+export type FilterType<T, F> = { [K in keyof T as T[K] extends F ? K : never]: T[K] }
