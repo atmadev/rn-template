@@ -11,7 +11,7 @@ type LIKE = NOT<'LIKE'>
 type IS = 'IS'
 type IsValue = NOT<'NULL'>
 type Operator = ComparsionOperator | IN | LIKE | BETWEEN | IS
-type AggregateFunction = 'COUNT' | 'AVG' | 'MAX' | 'MIN' | 'SUM' | 'TOTAL'
+
 export type ColumnTypes = number | string | boolean
 
 export type Querible<T> = {
@@ -48,6 +48,7 @@ export type FilterValueTypes<O, T> = {
 
 export type IsContain<T, S, YES, NO> = Extract<T, S> extends never ? NO : YES
 export type ExtractAndMap<T, S, MAP> = IsContain<T, S, MAP, never>
+export type ExcludeAndMap<T, S, MAP> = IsContain<T, S, never, MAP>
 
 // prettier-ignore
 export type AllowedOperators<T> =
@@ -56,9 +57,21 @@ export type AllowedOperators<T> =
 	| ExtractAndMap<T, boolean, '='>
 	| ExtractAndMap<T, number, BasicOperator>
 
-type DISTINCT<I extends string> = I | `DISTINCT ${I}`
-
-export type AggregateSelectItem<I extends string> = `${AggregateFunction}(${DISTINCT<I | '*'>})`
+type DISTINCT<K extends string> = K | `DISTINCT ${K}`
+export type COUNT<K extends string> = `COUNT(${DISTINCT<K>})`
+// prettier-ignore
+type GROUP_CONCAT<K extends string> = `GROUP_CONCAT(${DISTINCT<K> | `${K}, '${string}'`})`
+// prettier-ignore
+export type AggregateItem<T> = {
+		[K in keyof T]: K extends string ?
+		  	ExtractAndMap<T[K], number, ExcludeAndMap<T[K], undefined, `SUM(${K})`>
+															  	| `${'AVG' | 'MAX' | 'MIN' | 'TOTAL'}(${K})`>
+			| ExtractAndMap<T[K], string, `${'MAX' | 'MIN'}(${K})` | GROUP_CONCAT<K>>
+			| ExtractAndMap<T[K], undefined, COUNT<K>>
+		: never
+	}[keyof T] | COUNT<'*'>
+// prettier-ignore
+export type AggregateSingleItem<K extends string> = `${'AVG' | 'MAX' | 'MIN' | 'TOTAL' | 'SUM'}(${K})` | COUNT<K> | GROUP_CONCAT<K>
 
 export type SQLColumnInfo = {
 	cid: number

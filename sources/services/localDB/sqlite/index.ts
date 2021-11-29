@@ -1,5 +1,5 @@
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
-import { AggregateSelectItem, SQLSchema } from './types'
+import { AggregateItem, SQLSchema } from './types'
 import { AggregateQuery, DeleteQuery, InsertQuery, SelectQuery, UpdateQuery } from './queries'
 import { setUpSchemaIfNeeded } from './migration'
 
@@ -20,7 +20,7 @@ export const setupDB = async <UsedShapeNames extends ShapeName>(
 	return { tables, table: (name) => tables[name] }
 }
 
-class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
+export class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 	readonly name: TableName
 	constructor(name: TableName) {
 		this.name = name
@@ -35,9 +35,8 @@ class Table<TableName extends ShapeName, Object = PersistentShaped<TableName>> {
 		...columns: SelectedColumn[]
 	) => new SelectQuery(this.name, columns)
 
-	aggregate = <Columns extends AggregateSelectItem<keyof PersistentShaped<TableName> & string>>(
-		...columns: Columns[]
-	) => new AggregateQuery(this.name, columns)
+	aggregate = <Columns extends AggregateItem<PersistentShaped<TableName>>>(...columns: Columns[]) =>
+		new AggregateQuery(this.name, columns)
 
 	update = (object: Partial<PersistentShaped<TableName>>) => new UpdateQuery(this.name, object)
 	delete = () => new DeleteQuery(this.name)

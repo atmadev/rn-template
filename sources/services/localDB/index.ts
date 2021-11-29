@@ -1,8 +1,8 @@
-import { Profile, ProfileConfig, TestEntity } from 'shared/types'
+import { Profile, ProfileConfig } from 'shared/types'
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
 import { setupDB, SQLDB } from './sqlite'
 import { SQLSchema } from './sqlite/types'
-import testEntities from 'resources/testEntities.json'
+import { runTest as _runTest } from './tests'
 
 const useShapes = <SN extends ShapeName>(...names: SN[]) => names
 
@@ -79,67 +79,4 @@ export const entriesToSync = (uid: string) =>
 		.or('dateSynced', '<', 'du', true)
 		.fetch()
 
-export const runTest = async () => {
-	try {
-		const { TestEntity } = db.tables
-		await TestEntity.delete().run()
-		const emptyCount = await TestEntity.aggregate('COUNT(*)').fetch()
-		expectToBe(emptyCount['COUNT(*)'], 0)
-
-		await TestEntity.insert(...(testEntities as unknown as TestEntity[]))
-		const count = await TestEntity.aggregate('COUNT(*)', 'AVG(number)').fetch()
-		// log(count)
-		expectToBe(count['COUNT(*)'], 10)
-		expectToBe(count['AVG(number)'], 6)
-
-		// const entities = await TestEntity.select().fetch()
-		// log(entities)
-
-		const isNull = await TestEntity.select('nullable').where('nullable', 'IS', 'NULL').fetch()
-		expectCount(isNull, 7)
-
-		const notNull = await TestEntity.select('nullable').where('nullable', 'IS', 'NOT NULL').fetch()
-		expectCount(notNull, 3)
-
-		const boolTrue = await TestEntity.select('boolean').where('boolean', '=', true).fetch()
-		expectCount(boolTrue, 3)
-
-		const boolFalse = await TestEntity.select('boolean').where('boolean', '=', false).fetch()
-		expectCount(boolFalse, 7)
-
-		const between = await TestEntity.select('number').where('number', 'BETWEEN', [4, 6]).fetch()
-		expectCount(between, 4)
-
-		const notBetween = await TestEntity.select('number')
-			.where('number', 'NOT BETWEEN', [4, 6])
-			.fetch()
-		expectCount(notBetween, 6)
-
-		const IN = await TestEntity.select('word')
-			.where('word', 'IN', ['Hare', 'Krishna', 'Rama'])
-			.fetch()
-		expectCount(IN, 5)
-
-		const notIN = await TestEntity.select('word')
-			.where('word', 'NOT IN', ['Hare', 'Krishna', 'Rama'])
-			.fetch()
-		expectCount(notIN, 5)
-
-		console.log('🎉 Test success!')
-	} catch (e) {
-		console.log('⛔️ Test error:', e)
-	}
-}
-
-const expectToBe = <T>(value: T, toBe: T) => {
-	if (value === toBe) console.log('✅')
-	else throw new Error(`${value} is not ${toBe})`)
-}
-
-const expectCount = (value: any[], count: number) => {
-	if (value.length === count) console.log('✅')
-	else throw new Error(`${value} count is not ${count})`)
-}
-
-// const log = (data: any) =>
-// console.log(data, 'count', data?.length, 'hash', hash(JSON.stringify(data)))
+export const runTest = () => _runTest(db.table('TestEntity'))

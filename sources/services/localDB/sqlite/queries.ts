@@ -8,8 +8,10 @@ import {
 	AllowedOperators,
 	InferValue,
 	Array1_5,
-	AggregateSelectItem,
 	FilterType,
+	AggregateItem,
+	AggregateSingleItem,
+	COUNT,
 } from './types'
 import { readTransaction, transaction } from './engine'
 import { mapKeys } from 'shared/types/utils'
@@ -85,7 +87,7 @@ export class SelectQuery<
 
 export class AggregateQuery<
 	TableName extends ShapeName,
-	AggregateColumn extends AggregateSelectItem<keyof Object & string>,
+	AggregateColumn extends AggregateItem<Object>,
 	Object = PersistentShaped<TableName>,
 > {
 	private readonly selectedColumns: AggregateColumn[] = []
@@ -97,30 +99,13 @@ export class AggregateQuery<
 	}
 
 	// prettier-ignore
-	private sql() {
-		const args = this.whereBuilder.args
-		// TODO: select all columns manually to prevent droppped columns fetching
-		const sql =
-			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table}` +
-			this.whereBuilder.clause
-		return { sql, args }
-	}
-
+	private sql = () => `SELECT ${this.selectedColumns.join(', ')} FROM ${this.table}` + this.whereBuilder.clause
 	// prettier-ignore
 	fetch = async (): Promise<{
-		[P in AggregateColumn]: P extends AggregateSelectItem<infer Key>
-			? Key extends '*' ? number
-			: Key extends keyof Object ? Object[Key]
-			: never : never
-	}> => {
-		
-		const objects = await readTransaction((tx, resolve) => {
-			const { sql, args } = this.sql()
-			tx.query(sql, args, resolve)
-		})
-
-		return objects[0]
-	}
+		[P in AggregateColumn]
+			: P extends COUNT<infer _> ? number
+			: P extends AggregateSingleItem<infer Key> ? Key extends keyof Object ? Object[Key] : never : never
+	}> => (await readTransaction((tx, resolve) => tx.query(this.sql(), undefined, resolve)))[0]
 
 	private actions = { fetch: this.fetch }
 
