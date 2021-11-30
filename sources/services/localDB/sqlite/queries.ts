@@ -7,8 +7,8 @@ import {
 	OrderItem,
 	AllowedOperators,
 	InferValue,
-	Array1_5,
-	FilterType,
+	ArrayLimited,
+	FilterValueTypes,
 	AggregateItem,
 	AggregateSingleItem,
 	COUNT,
@@ -294,7 +294,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	search = (
 		string: string,
-		...keys: Array1_5<keyof FilterType<Querible<Object>, string | undefined>>
+		...keys: ArrayLimited<keyof FilterValueTypes<Querible<Object>, string | undefined>>
 	) => {
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
 		console.log('search', keys, subStrings)

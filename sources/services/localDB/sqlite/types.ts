@@ -42,8 +42,8 @@ export type InferValue<T, K extends keyof T, O extends Operator, V = Exclude<T[K
 	: O extends IS ? IsValue
 	: V | keyof FilterValueTypes<T, V | undefined>
 
-export type FilterValueTypes<O, T> = {
-	[K in keyof O as O[K] extends T ? K : never]: O[K]
+export type FilterValueTypes<O, V> = {
+	[K in keyof O as O[K] extends V ? K : never]: O[K]
 }
 
 export type IsContain<T, S, YES, NO> = Extract<T, S> extends never ? NO : YES
@@ -102,6 +102,4 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 	}
 }
 
-export type Array1_5<T> = [T] | [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]
-
-export type FilterType<T, F> = { [K in keyof T as T[K] extends F ? K : never]: T[K] }
+export type ArrayLimited<T> = [T] | [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]
