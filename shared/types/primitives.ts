@@ -23,13 +23,15 @@ export type PrimitiveType = keyof PrimitiveTypeMap
 export type TypeInternal = PrimitiveType | Shape
 export type Type = TypeInternal | TypeInternal[]
 
-export type ShapeItem = {
+export interface ShapeItem {
 	_shapeItem: true
 	type: Type
 	readonly flags: readonly Flag[]
 }
-
-export type RequiredShapeItem = ShapeItem & { required: true }
+// prettier-ignore
+export interface RequiredShapeItem extends ShapeItem { required: true }
+// prettier-ignore
+export interface PrimaryShapeItem extends RequiredShapeItem { primary: true }
 
 export type Shape = { [key: string]: ShapeItem | Type }
 
@@ -46,6 +48,7 @@ type ExtractFlag<I extends ShapeItem, F extends Flag> = Extract<I['flags'][numbe
 type IfFlag<I extends ShapeItem, F extends Flag, YES, NO> = ExtractFlag<I, F> extends never ? NO : YES
 
 type IsRequired<I, YES, NO> = I extends RequiredShapeItem ? YES : NO
+type IsPrimary<I, YES, NO> = I extends PrimaryShapeItem ? YES : NO
 type IsPersistent<I, YES, NO> = I extends ShapeItem ? IfFlag<I, 'transient', NO, YES> : YES
 
 // prettier-ignore
@@ -56,13 +59,21 @@ type ShapedInternal<S extends Shape | Shape[]> = { [K in keyof S]
 
 type _Shaped<S extends Shape | Shape[]> = Partial<ShapedInternal<S>> &
 	(S extends Shape ? ShapedInternal<RequiredOnly<S>> : {})
-// prettier-ignore
+
 type _PersistentShaped<S extends Shape> = _Shaped<{
 	[K in keyof S as IsPersistent<S[K], K, never>]: S[K]
 }>
 
+type _PrimaryShaped<S extends Shape> = _Shaped<{
+	[K in keyof S as IsPrimary<S[K], K, never>]: S[K]
+}>
+
 type RequiredOnly<S extends Shape> = {
 	[K in keyof S as IsRequired<S[K], K, never>]: S[K]
+}
+
+type PrimaryItem<S extends Shape> = keyof {
+	[K in keyof S as IsPrimary<S[K], K, never>]: S[K]
 }
 
 export type Shapes = typeof shapes
@@ -70,12 +81,22 @@ export type ShapeName = keyof Shapes
 
 export type Shaped<SN extends ShapeName> = _Shaped<Shapes[SN]>
 export type PersistentShaped<SN extends ShapeName> = _PersistentShaped<Shapes[SN]>
+export type PrimaryPartialPersistentShaped<SN extends ShapeName> = ExtractAndMap<
+	keyof Shapes[SN],
+	PrimaryItem<Shapes[SN]>,
+	_PrimaryShaped<Shapes[SN]> & Partial<_PersistentShaped<Shapes[SN]>>
+>
 
 export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never
 export type ExpandDeep<T> = T extends object
 	? T extends infer O
-	? { [K in keyof O]: ExpandDeep<O[K]> } : never
+		? { [K in keyof O]: ExpandDeep<O[K]> }
+		: never
 	: T
 
 export const TRUE = true as const
 export const FALSE = false as const
+
+export type IsContain<T, C, YES, NO> = Extract<T, C> extends never ? NO : YES
+export type ExtractAndMap<T, E, MAP> = IsContain<T, E, MAP, never>
+export type ExcludeAndMap<T, E, MAP> = IsContain<T, E, never, MAP>

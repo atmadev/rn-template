@@ -8,6 +8,13 @@ const { string, number, boolean, any, TRUE } = primitiveTypes
 const _ = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, flags, _shapeItem: true as const })
 // prettier-ignore
 const r = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, flags, required: true as const, _shapeItem: true as const })
+const p = <T extends Type, F extends Exclude<Flag, 'transient'>[]>(type: T, ...flags: F) => ({
+	type,
+	flags,
+	required: true as const,
+	primary: true as const,
+	_shapeItem: true as const,
+})
 
 const shape = <T extends Shape>(s: T) => s
 
@@ -18,7 +25,7 @@ export const CustomField = shape({
 })
 
 export const Profile = shape({
-	uid: r(string, 'local'),
+	uid: p(string, 'local'),
 	firstName: string,
 	lastName: string,
 	spiritualName: string,
@@ -28,7 +35,7 @@ export const Profile = shape({
 })
 
 export const ProfileConfig = shape({
-	uid: r(string, 'local'),
+	uid: p(string, 'local'),
 	lastCustomFieldID: r(number),
 	standardFields: {
 		wake: TRUE,
@@ -67,12 +74,21 @@ export const Entry = shape({
 })
 
 export const TestEntity = shape({
-	id: r(number),
+	id: p(number),
 	number: r(number),
 	string: r(string),
 	boolean: r(boolean),
 	nullable: TRUE,
 	word: string,
+})
+
+export const TestEntity2 = shape({
+	id: p(number),
+	number: r(number),
+	string: r(string),
+	bool: r(boolean),
+	nullable: TRUE,
+	newField: string,
 })
 
 // type E = ExpandDeep<Shaped<'ProfileConfig'>>

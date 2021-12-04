@@ -1,14 +1,18 @@
 import { Profile, ProfileConfig } from 'shared/types'
 import { PersistentShaped, ShapeName } from 'shared/types/primitives'
+import { styleLog } from 'shared/utils'
 import { setupDB, SQLDB } from './sqlite'
 import { SQLSchema } from './sqlite/types'
 import { runTest as _runTest } from './tests'
+import { testMigratedData } from './tests/migrated'
 
 const useShapes = <SN extends ShapeName>(...names: SN[]) => names
 
-const usedShapeNames = useShapes('Profile', 'Entry', 'ProfileConfig', 'TestEntity')
+const usedShapeNames = useShapes('Entry', 'Profile', 'ProfileConfig', 'TestEntity')
+const usedShapeNames2 = useShapes('TestEntity2')
 
 type UsedShapeNames = typeof usedShapeNames[number]
+type UsedShapeNames2 = typeof usedShapeNames2[number]
 
 const schema: SQLSchema<UsedShapeNames> = {
 	Profile: {
@@ -24,10 +28,26 @@ const schema: SQLSchema<UsedShapeNames> = {
 	TestEntity: {
 		primaryKey: 'id',
 		index: [['number'], ['nullable'], ['boolean'], ['boolean', 'number']],
+		columnNamesHistory: {
+			boolean: ['bool'],
+		},
+		tableNamesHistory: ['TestEntity2'],
+	},
+}
+
+const schema2: SQLSchema<UsedShapeNames2> = {
+	TestEntity2: {
+		primaryKey: 'id',
+		index: [['number'], ['bool'], ['bool', 'number'], ['newField DESC']],
+		columnNamesHistory: {
+			bool: ['boolean'],
+		},
+		tableNamesHistory: ['TestEntity'],
 	},
 }
 
 let db: SQLDB<UsedShapeNames>
+let db2: SQLDB<UsedShapeNames2>
 
 type Entry = PersistentShaped<'Entry'>
 
@@ -83,6 +103,18 @@ export const entriesToSync = (uid: string) =>
 		.fetch()
 
 export const runTest = async () => {
-	if (!db) await initLocalDB()
-	_runTest(db.table('TestEntity'))
+	try {
+		if (!db) await initLocalDB()
+		await _runTest(db.table('TestEntity'))
+
+		db2 = await setupDB(schema2)
+		await testMigratedData(db2.table('TestEntity2'))
+
+		db = await setupDB(schema)
+		await _runTest(db.table('TestEntity'))
+
+		console.log('\n', styleLog('bold', '🎉 Test success!'))
+	} catch (e) {
+		console.log('\n', styleLog('red', '⛔️ Test error:'), e)
+	}
 }

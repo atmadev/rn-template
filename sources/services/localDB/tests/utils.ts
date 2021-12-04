@@ -8,7 +8,7 @@ export const expectToBe = <T>(value: T, toBe: T) => {
 }
 
 export const expectCount = (value: any[], count: number) => {
-	if (value.length !== count) throw new Error(`${value} count is not ${count})`)
+	if (value.length !== count) throw new Error(`${JSON.stringify(value)} count is not ${count})`)
 
 	console.log('  ✅', styleLog('grey', `count ${count}`))
 }

@@ -1,4 +1,10 @@
-import { PersistentShaped, ShapeName } from 'shared/types/primitives'
+import {
+	ExcludeAndMap,
+	ExtractAndMap,
+	IsContain,
+	PersistentShaped,
+	ShapeName,
+} from 'shared/types/primitives'
 
 type NOT<T extends string> = T | `NOT ${T}`
 
@@ -46,10 +52,6 @@ export type FilterValueTypes<O, V> = {
 	[K in keyof O as O[K] extends V ? K : never]: O[K]
 }
 
-export type IsContain<T, S, YES, NO> = Extract<T, S> extends never ? NO : YES
-export type ExtractAndMap<T, S, MAP> = IsContain<T, S, MAP, never>
-export type ExcludeAndMap<T, S, MAP> = IsContain<T, S, never, MAP>
-
 // prettier-ignore
 export type AllowedOperators<T> =
 	ExtractAndMap<T, undefined, IS>
@@ -95,10 +97,11 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 		primaryKey?: keyof Querible<PersistentShaped<SN>>
 		unique?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
 		index?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
-		namesHistory?: {
+		columnNamesHistory?: {
 			// eslint-disable-next-line no-unused-vars
 			[_ in keyof PersistentShaped<SN>]?: string[]
 		}
+		tableNamesHistory?: string[]
 	}
 }
 

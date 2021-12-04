@@ -1,6 +1,11 @@
 import { Query } from 'expo-sqlite'
 import { getLast } from 'services/utils'
-import { PersistentShaped, ShapeName, Expand } from 'shared/types/primitives'
+import {
+	PersistentShaped,
+	ShapeName,
+	Expand,
+	PrimaryPartialPersistentShaped,
+} from 'shared/types/primitives'
 import {
 	Querible,
 	WhereItem,
@@ -59,7 +64,7 @@ export class SelectQuery<
 			tx.query(sql, args, resolve)
 		})
 		// const start = Date.now()
-		const objectKeys = mapKeys(this.table, (key, type, flags) => {
+		const objectKeys = mapKeys(this.table, (key, { type, flags }) => {
 			if (
 				flags.includes('transient') ||
 				typeof type !== 'object' ||
@@ -106,6 +111,7 @@ export class AggregateQuery<
 	// prettier-ignore
 	fetch = async (): Promise<{
 		[P in AggregateColumn]
+			// eslint-disable-next-line no-unused-vars
 			: P extends COUNT<infer _> ? number
 			: P extends AggregateSingleItem<infer Key> ? Key extends keyof Object ? Object[Key] : never : never
 	}> => {
@@ -134,7 +140,7 @@ export class InsertQuery<TableName extends ShapeName, Object = PersistentShaped<
 	private get sql(): Query {
 		const args: any[] = []
 
-		const columns = mapKeys(this.table, (key, type, flags) => {
+		const columns = mapKeys(this.table, (key, { type, flags }) => {
 			if (flags.includes('transient')) return null
 			return { key, type }
 		})
@@ -199,6 +205,47 @@ export class UpdateQuery<
 	private readonly whereBuilder = new WhereBuilder<TableName, typeof this.actions>(this.actions)
 	where = this.whereBuilder.where
 	match = this.whereBuilder.match
+}
+
+export class UpdateMultipleQuery<
+	TableName extends ShapeName,
+	Object = PrimaryPartialPersistentShaped<TableName>,
+> {
+	readonly table: TableName
+	readonly objects: Object[]
+
+	constructor(table: TableName, objects: Object[]) {
+		this.table = table
+		this.objects = objects
+	}
+
+	get queries() {
+		let primaryKey: string
+
+		const allowedKeys = new Set(
+			mapKeys(this.table, (key, { flags, primary }) => {
+				if (primary) primaryKey = key
+				if (flags.includes('transient') || primary) return null
+				return key
+			}),
+		)
+		// prettier-ignore
+		return this.objects.map((object) => {
+			const args = []
+			const sql = 'UPDATE ' + this.table +' SET ' +
+				Object.entries(object).filter(([k]) => allowedKeys.has(k)).map(([k, v]) => {
+					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
+					return k + ' = ?'
+				}).join(', ') + ' WHERE ' + primaryKey + ' = ?'
+			// @ts-ignore
+			args.push(object[primaryKey])
+
+			return { sql, args }
+		})
+	}
+
+	run = (): Promise<void> =>
+		transaction((tx) => this.queries.forEach(({ sql, args }) => tx.query(sql, args)))
 }
 
 export class DeleteQuery<TableName extends ShapeName> {

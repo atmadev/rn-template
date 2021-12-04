@@ -2,20 +2,13 @@ import { Table } from '../sqlite'
 import testEntities from 'resources/testEntities.json'
 import { TestEntity } from 'shared/types'
 import { expectToBe, expectCount, expectIDs, expectOrder, expectKeys } from './utils'
-import { styleLog } from 'shared/utils'
 
 export const runTest = async (t: Table<'TestEntity'>) => {
-	try {
-		await setUpTestData(t)
-		await testAggregateFunctions(t)
-		await testSingleWheres(t)
-		await testMultipleWheres(t)
-		await testLimitOffset(t)
-
-		console.log('\n', styleLog('bold', '🎉 Test success!'))
-	} catch (e) {
-		console.log('\n', styleLog('red', '⛔️ Test error:'), e)
-	}
+	await setUpTestData(t)
+	await testAggregateFunctions(t)
+	await testSingleWheres(t)
+	await testMultipleWheres(t)
+	await testLimitOffset(t)
 }
 
 const setUpTestData = async (t: Table<'TestEntity'>) => {
