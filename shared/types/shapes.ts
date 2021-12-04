@@ -67,6 +67,7 @@ export const Entry = shape({
 })
 
 export const TestEntity = shape({
+	id: r(number),
 	number: r(number),
 	string: r(string),
 	boolean: r(boolean),

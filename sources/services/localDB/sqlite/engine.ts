@@ -2,7 +2,7 @@ import { openDatabase, SQLTransaction, SQLError } from 'expo-sqlite'
 import { SQLColumnInfo, SQLIndexInfo } from './types'
 
 // TODO: test how it works if column type has changed
-const db = openDatabase('rn-template-db1.sqlite')
+const db = openDatabase('rn-template-db2.sqlite')
 
 export const tableInfo = (tables: string[]): Promise<SQLColumnInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))

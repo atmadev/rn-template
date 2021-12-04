@@ -33,7 +33,7 @@ export class SelectQuery<
 	}
 
 	// prettier-ignore
-	private sql(limit?: number, offset?: number) {
+	private sql = (limit?: number, offset?: number) => {
 		const args = this.whereBuilder.args
 		// TODO: select all columns manually to prevent droppped columns fetching
 		const sql =
@@ -98,14 +98,21 @@ export class AggregateQuery<
 		this.selectedColumns = columns
 	}
 
-	// prettier-ignore
-	private sql = () => `SELECT ${this.selectedColumns.join(', ')} FROM ${this.table}` + this.whereBuilder.clause
+	private sql = () => ({
+		sql: `SELECT ${this.selectedColumns.join(', ')} FROM ${this.table}` + this.whereBuilder.clause,
+		args: this.whereBuilder.args,
+	})
+
 	// prettier-ignore
 	fetch = async (): Promise<{
 		[P in AggregateColumn]
 			: P extends COUNT<infer _> ? number
 			: P extends AggregateSingleItem<infer Key> ? Key extends keyof Object ? Object[Key] : never : never
-	}> => (await readTransaction((tx, resolve) => tx.query(this.sql(), undefined, resolve)))[0]
+	}> => {
+		const { sql, args } = this.sql()
+		const result = await readTransaction((tx, resolve) => tx.query(sql, args, resolve))
+		return result[0]
+	}
 
 	private actions = { fetch: this.fetch }
 

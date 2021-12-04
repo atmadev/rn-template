@@ -21,7 +21,10 @@ const schema: SQLSchema<UsedShapeNames> = {
 		unique: [['uid', 'd DESC']],
 		index: [['uid', 'dateSynced']],
 	},
-	TestEntity: {},
+	TestEntity: {
+		primaryKey: 'id',
+		index: [['number'], ['nullable'], ['boolean'], ['boolean', 'number']],
+	},
 }
 
 let db: SQLDB<UsedShapeNames>
@@ -79,4 +82,7 @@ export const entriesToSync = (uid: string) =>
 		.or('dateSynced', '<', 'du', true)
 		.fetch()
 
-export const runTest = () => _runTest(db.table('TestEntity'))
+export const runTest = async () => {
+	if (!db) await initLocalDB()
+	_runTest(db.table('TestEntity'))
+}
