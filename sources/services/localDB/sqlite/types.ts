@@ -24,7 +24,7 @@ export type Querible<T> = {
 	[P in keyof T as T[P] extends ColumnTypes | undefined ? P : never]: T[P]
 }
 
-export type WhereItem = {
+export interface WhereItem {
 	key: string
 	operator: Operator
 	arg: any
@@ -75,7 +75,7 @@ export type AggregateItem<T> = {
 // prettier-ignore
 export type AggregateSingleItem<K extends string> = `${'AVG' | 'MAX' | 'MIN' | 'TOTAL' | 'SUM'}(${K})` | COUNT<K> | GROUP_CONCAT<K>
 
-export type SQLColumnInfo = {
+export interface SQLColumnInfo {
 	cid: number
 	name: string
 	type: string
@@ -84,7 +84,7 @@ export type SQLColumnInfo = {
 	pk: number
 }
 
-export type SQLIndexInfo = {
+export interface SQLIndexInfo {
 	name: string
 	origin: 'c' | 'u' | 'pk'
 	partial: 0 | 1
@@ -105,3 +105,9 @@ export type SQLSchema<ShapeNames extends ShapeName> = {
 }
 
 export type ArrayLimited<T> = [T] | [T, T] | [T, T, T] | [T, T, T, T] | [T, T, T, T, T]
+
+export interface SQLDatabaseInfo {
+	file: string
+	name: string
+	seq: number
+}

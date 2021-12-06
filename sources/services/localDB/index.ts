@@ -98,6 +98,7 @@ export const entriesToSync = (uid: string) =>
 export const runTest = async () => {
 	try {
 		if (!db) await initLocalDB()
+
 		await _runTest(db.table('TestEntity'))
 
 		db2 = await setupDB(schema2)

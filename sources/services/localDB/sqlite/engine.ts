@@ -1,8 +1,9 @@
 import { openDatabase, SQLTransaction, SQLError } from 'expo-sqlite'
-import { SQLColumnInfo, SQLIndexInfo } from './types'
+import { SQLColumnInfo, SQLDatabaseInfo, SQLIndexInfo } from './types'
+import { deleteAsync } from 'expo-file-system'
 
 // TODO: test how it works if column type has changed
-const db = openDatabase('rn-template-db2.sqlite')
+const db = openDatabase('rn-template-db3.sqlite')
 
 export const tableInfo = (tables: string[]): Promise<SQLColumnInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))
@@ -93,3 +94,12 @@ const pragma = (...funcs: string[]) =>
 			},
 		)
 	})
+
+export const dropDB = async () => {
+	const [list]: SQLDatabaseInfo[][] = await pragma('database_list')
+	console.log('list', list)
+
+	// TODO: detouch database at first
+	const db = list.find((db) => db.name === 'main')
+	if (db) return deleteAsync(db.file)
+}
