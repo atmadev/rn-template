@@ -40,7 +40,6 @@ export class SelectQuery<
 	// prettier-ignore
 	private sql = (limit?: number, offset?: number) => {
 		const args = this.whereBuilder.args
-		// TODO: select all columns manually to prevent droppped columns fetching
 		const sql =
 			`SELECT ${this.selectedColumns.length > 0 ? this.selectedColumns.join(', ') : '*'} FROM ${this.table}` +
 			this.whereBuilder.clause +

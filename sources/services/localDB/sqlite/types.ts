@@ -94,7 +94,6 @@ export type SQLIndexInfo = {
 
 export type SQLSchema<ShapeNames extends ShapeName> = {
 	[SN in ShapeNames]: {
-		primaryKey?: keyof Querible<PersistentShaped<SN>>
 		unique?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
 		index?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
 		columnNamesHistory?: {

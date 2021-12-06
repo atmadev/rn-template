@@ -15,18 +15,13 @@ type UsedShapeNames = typeof usedShapeNames[number]
 type UsedShapeNames2 = typeof usedShapeNames2[number]
 
 const schema: SQLSchema<UsedShapeNames> = {
-	Profile: {
-		primaryKey: 'uid',
-	},
-	ProfileConfig: {
-		primaryKey: 'uid',
-	},
+	Profile: {},
+	ProfileConfig: {},
 	Entry: {
 		unique: [['uid', 'd DESC']],
 		index: [['uid', 'dateSynced']],
 	},
 	TestEntity: {
-		primaryKey: 'id',
 		index: [['number'], ['nullable'], ['boolean'], ['boolean', 'number']],
 		columnNamesHistory: {
 			boolean: ['bool'],
@@ -37,7 +32,6 @@ const schema: SQLSchema<UsedShapeNames> = {
 
 const schema2: SQLSchema<UsedShapeNames2> = {
 	TestEntity2: {
-		primaryKey: 'id',
 		index: [['number'], ['bool'], ['bool', 'number'], ['newField DESC']],
 		columnNamesHistory: {
 			bool: ['boolean'],
@@ -72,7 +66,6 @@ export const searchProfile = (searchString: string) =>
 		.orderBy('spiritualName NULLS LAST', 'firstName', 'lastName')
 		.fetch(30)
 
-// TODO: Test it
 export const insertEntries = (entries: Entry[]) => db.table('Entry').insert(...entries)
 export const importEntries = async (entries: Entry[]) => {
 	const mappedEntries = (await db.table('Profile').select('uid').fetch()).flatMap(

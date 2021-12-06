@@ -1,7 +1,6 @@
 // prettier-ignore
 import { primitiveTypes, Type, Flag, Shape } from './primitives'
 
-// TODO: think about advances ShapeItems with factoryMethods
 const { string, number, boolean, any, TRUE } = primitiveTypes
 
 // prettier-ignore
@@ -90,6 +89,3 @@ export const TestEntity2 = shape({
 	nullable: TRUE,
 	newField: string,
 })
-
-// type E = ExpandDeep<Shaped<'ProfileConfig'>>
-// type P = ExpandDeep<Shaped<'Profile'>>

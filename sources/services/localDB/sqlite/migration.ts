@@ -12,7 +12,6 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 ) => {
 	// MIGRATION
 	// get db schema hash
-	// TODO: remember sqlite version for check drop column possibility
 	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
 		tx.query('SELECT sqlite_version()', undefined, handleSQLiteVersionResult)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key PRIMARY KEY NOT NULL, value NOT NULL)')
@@ -48,10 +47,10 @@ const createTableFromScratch = <UsedShapeName extends ShapeName>(
 	shapeName: UsedShapeName,
 	schemaItem: SQLSchema<UsedShapeName>[UsedShapeName],
 ) => {
-	const createdColumns = mapKeys(shapeName, (key, { type, flags, required }) => {
+	const createdColumns = mapKeys(shapeName, (key, { type, flags, required, primary }) => {
 		if (flags.includes('transient')) return null
 		let columnDefinition = key
-		if (schemaItem.primaryKey === key) {
+		if (primary) {
 			if (type === '_number') columnDefinition += ' INTEGER'
 			columnDefinition += ' PRIMARY KEY'
 		}
@@ -101,9 +100,6 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 	const oldIndexLists = {} as { [key: string]: SQLIndexInfo[] }
 	oldShapeNames.forEach((n, i) => (oldIndexLists[n] = oldIndexListsArray[i]))
 
-	// console.log('tableInfos', tableInfos)
-	// console.log('indexLists', indexLists)
-
 	return transaction((tx) => {
 		// ENUMERATE TABLES
 		shapeNames.forEach((shapeName, i) => {
@@ -134,13 +130,12 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 
 			// MIGRATE TABLE
 			const tableInfoMap = mapFromArray(tableInfo, 'name')
-			mapKeys(shapeName, (key, { flags, required }) => {
+			mapKeys(shapeName, (key, { flags, required, primary }) => {
 				if (flags.includes('transient')) return null
 				// if column not exist
 				let oldColumnName
 				if (!tableInfoMap[key]) {
 					// look up history
-					// TODO: test renaming
 					// prettier-ignore
 					oldColumnName = schemaItem.columnNamesHistory?.[key as UsedShapeName]?.find(on => tableInfoMap[on])
 
@@ -153,7 +148,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 						// prettier-ignore
 						if (required) throw new Error('SQLiteEngine error: tried to add required field ' + key + ' to the existing table ' + shapeName)
 						// prettier-ignore
-						if (schemaItem.primaryKey === key) throw new Error('SQLiteEngine error: tried to add primary field ' + key + ' to the existing table ' + shapeName)
+						if (primary) throw new Error('SQLiteEngine error: tried to add primary field ' + key + ' to the existing table ' + shapeName)
 						// ADD COLUMN
 						tx.query(`ALTER TABLE ${shapeName} ADD ${key}`)
 					}
@@ -163,8 +158,6 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 			})
 
 			const indexListMap = mapFromArray(indexList, 'name')
-
-			// TODO: create my own schema index map, merge regular and unique indexes, unique will override regular
 
 			const params = { tx, shapeName, schemaItem, indexListMap }
 			migrateIndex(1, params)
@@ -177,16 +170,19 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 
 			// DROP COLUMNS
 			// It should be done after indexes dropping
-			if (SQLiteVersion >= 3.35) {
-				for (const deletedColumn in tableInfoMap) {
-					tx.query(`ALTER TABLE ${shapeName} DROP ${deletedColumn}`)
-				}
-			} else {
-				// TODO: remove all values from dropped column
-			}
+			for (const deletedColumn in tableInfoMap)
+				tx.query(
+					SQLiteVersion >= 3.35
+						? `ALTER TABLE ${shapeName} DROP ${deletedColumn}`
+						: `UPDATE ${shapeName} SET ${deletedColumn} = NULL`,
+				)
 		})
 
-		// TODO: drop unused tables
+		// DROP TABLES
+		// TODO: save all table names in the config, and delete unused tables
+		// for (const oldTableName in oldTableInfos)
+		// if (oldTableInfos[oldTableName].length > 0) tx.query('DROP TABLE ' + oldTableName)
+
 		// set new schema hash
 		tx.query(`REPLACE INTO _Config VALUES ('schemaHash', ${hash})`)
 	})
@@ -211,7 +207,7 @@ const migrateIndex = <UsedShapeName extends ShapeName>(
 			tx.query('DROP INDEX ' + name)
 			index = null
 		}
-		// prettier-ignore
+
 		if (!index) tx.query(`CREATE${unique ? ' UNIQUE' : ''} INDEX ${name} ON ${shapeName} (${columns.join(', ')})`)
 
 		delete indexListMap[name]
