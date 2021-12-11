@@ -183,7 +183,6 @@ export class UpdateQuery<
 		const sql = 'UPDATE ' + this.table + ' SET ' +
 			Object.entries(this.object).map(([k, v]) => {
 				let valueSymbol
-				// TODO: should we validate updated column type by Schema ?
 				if (v) {
 					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
 					valueSymbol = '?'
@@ -238,7 +237,6 @@ export class UpdateMultipleQuery<
 			const sql = 'UPDATE ' + this.table +' SET ' +
 				Object.entries(object).filter(([k]) => allowedKeys.has(k)).map(([k, v]) => {
 					let valueSymbol
-					// TODO: should we validate updated column type by Schema ?
 					if (v) {
 						args.push(typeof v === 'object' ? JSON.stringify(v) : v)
 						valueSymbol = '?'
