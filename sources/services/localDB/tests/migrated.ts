@@ -12,10 +12,10 @@ export const testMigratedData = async (t: Table<'TestEntity2'>) => {
 const setUpTestData = async (t: Table<'TestEntity2'>) => {
 	await t
 		.updateMultiple([
-			{ id: 1, newField: 'Krishna' },
+			{ id: 1, newField: 'Krishna', changedType: 1 },
 			{ id: 2, newField: 'Rama' },
-			{ id: 3, newField: 'Sita' },
-			{ id: 4, newField: 'Jaganatha' },
+			{ id: 3, newField: 'Sita', changedType: null },
+			{ id: 4, newField: 'Jaganatha', changedType: 4 },
 			{ id: 5, newField: 'Parashurama' },
 			{ id: 6, newField: 'Vasudevaya' },
 			{ id: 7, newField: 'Narasimhadev' },
@@ -24,6 +24,15 @@ const setUpTestData = async (t: Table<'TestEntity2'>) => {
 			{ id: 10, newField: 'Subhadra' },
 		])
 		.run()
+
+	const updatedData = await t.select('id', 'changedType').fetch(5)
+	expectToBe(updatedData[0].changedType, 1)
+	// @ts-ignore
+	expectToBe(updatedData[1].changedType, '2')
+	expectToBe(updatedData[2].changedType, null)
+	expectToBe(updatedData[3].changedType, 4)
+	expectToBe(updatedData[4].changedType, null)
+	console.log('updatedDataFirst4', updatedData)
 }
 
 const testAggregateFunctions = async (t: Table<'TestEntity2'>) => {

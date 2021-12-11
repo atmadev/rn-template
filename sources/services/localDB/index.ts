@@ -100,7 +100,6 @@ export const runTest = async () => {
 		if (!db) await initLocalDB()
 
 		await _runTest(db.table('TestEntity'))
-
 		db2 = await setupDB(schema2)
 		await testMigratedData(db2.table('TestEntity2'))
 

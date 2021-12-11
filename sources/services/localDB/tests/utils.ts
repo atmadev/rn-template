@@ -1,5 +1,4 @@
 import { styleLog } from 'shared/utils'
-import { Querible } from '../sqlite/types'
 
 export const expectToBe = <T>(value: T, toBe: T) => {
 	if (value !== toBe) throw new Error(`${value} is not ${toBe})`)
@@ -23,7 +22,7 @@ export const expectIDs = (data: { id: number }[], ...ids: number[]) => {
 	console.log('  ✅', styleLog('grey', `ids ${ids.join(', ')}`))
 }
 
-export const expectOrder = <Item, Key extends keyof Querible<Item>, Value = Querible<Item>[Key]>(
+export const expectOrder = <Item, Key extends keyof Item, Value = Item[Key]>(
 	data: Item[],
 	key: Key,
 	desc = false,

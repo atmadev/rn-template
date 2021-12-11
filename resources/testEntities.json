@@ -5,21 +5,24 @@
     "string": "Govindam Adi Purusham",
     "boolean": false,
     "word": "Vasudeva",
-    "nullable": true
+    "nullable": true,
+    "changedType": "1"
   },
   {
     "id": 2,
     "number": 5,
     "string": "Vancha Kalpa",
     "boolean": true,
-    "word": "Hare"
+    "word": "Hare",
+    "changedType": "2"
   },
   {
     "id": 3,
     "number": 7,
     "string": "Vancha Kalpa",
     "boolean": false,
-    "word": "Krishna"
+    "word": "Krishna",
+    "changedType": "3"
   },
   {
     "id": 4,

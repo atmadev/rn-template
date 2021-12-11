@@ -79,6 +79,7 @@ export const TestEntity = shape({
 	boolean: r(boolean),
 	nullable: TRUE,
 	word: string,
+	changedType: string,
 })
 
 export const TestEntity2 = shape({
@@ -88,4 +89,5 @@ export const TestEntity2 = shape({
 	bool: r(boolean),
 	nullable: TRUE,
 	newField: string,
+	changedType: number,
 })

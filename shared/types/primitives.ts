@@ -1,23 +1,5 @@
 import { shapes } from './'
 
-export type Flag = 'transient' | 'local'
-
-export type PrimitiveTypeMap = {
-	_string: string
-	_number: number
-	_boolean: boolean
-	_any: any
-	_true: true
-}
-
-export const primitiveTypes = {
-	string: '_string' as const,
-	number: '_number' as const,
-	boolean: '_boolean' as const,
-	any: '_any' as const,
-	TRUE: '_true' as const,
-}
-
 export type PrimitiveType = keyof PrimitiveTypeMap
 
 export type TypeInternal = PrimitiveType | Shape
@@ -37,7 +19,7 @@ export type Shape = { [key: string]: ShapeItem | Type }
 
 // prettier-ignore
 type ShapedItem<T extends Type> =
-	T extends { _string: infer T } ? T extends Type ? Record<string, ShapedItem<T>> : never
+	T extends { _string: infer T } ? T extends Type ? Record<string, ShapedItem<T>> : never // Map
 	: T extends PrimitiveType ? PrimitiveTypeMap[T]
 	: T extends PrimitiveType[] ? PrimitiveTypeMap[T[number]][]
 	: T extends Shape ? _Shaped<T>
@@ -57,7 +39,7 @@ type ShapedInternal<S extends Shape | Shape[]> = { [K in keyof S]
 	: S[K] extends Type ? ShapedItem<S[K]> : never
 }
 
-type _Shaped<S extends Shape | Shape[]> = Partial<ShapedInternal<S>> &
+type _Shaped<S extends Shape | Shape[]> = PartialNullable<ShapedInternal<S>> &
 	(S extends Shape ? ShapedInternal<RequiredOnly<S>> : {})
 
 type _PersistentShaped<S extends Shape> = _Shaped<{
@@ -100,3 +82,25 @@ export const FALSE = false as const
 export type IsContain<T, C, YES, NO> = Extract<T, C> extends never ? NO : YES
 export type ExtractAndMap<T, E, MAP> = IsContain<T, E, MAP, never>
 export type ExcludeAndMap<T, E, MAP> = IsContain<T, E, never, MAP>
+
+type PartialNullable<T> = {
+	[P in keyof T]?: T[P] | null
+}
+
+export type Flag = 'transient' | 'local'
+
+export type PrimitiveTypeMap = {
+	_string: string
+	_number: number
+	_boolean: boolean
+	_any: any
+	_true: true
+}
+
+export const primitiveTypes = {
+	string: '_string' as const,
+	number: '_number' as const,
+	boolean: '_boolean' as const,
+	any: '_any' as const,
+	TRUE: '_true' as const,
+}

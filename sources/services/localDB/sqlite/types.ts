@@ -20,10 +20,6 @@ type Operator = ComparsionOperator | IN | LIKE | BETWEEN | IS
 
 export type ColumnTypes = number | string | boolean
 
-export type Querible<T> = {
-	[P in keyof T as T[P] extends ColumnTypes | undefined ? P : never]: T[P]
-}
-
 export interface WhereItem {
 	key: string
 	operator: Operator
@@ -94,8 +90,8 @@ export interface SQLIndexInfo {
 
 export type SQLSchema<ShapeNames extends ShapeName> = {
 	[SN in ShapeNames]: {
-		unique?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
-		index?: NotNullOrderItem<keyof Querible<PersistentShaped<SN>>>[][]
+		unique?: NotNullOrderItem<keyof PersistentShaped<SN>>[][]
+		index?: NotNullOrderItem<keyof PersistentShaped<SN>>[][]
 		columnNamesHistory?: {
 			// eslint-disable-next-line no-unused-vars
 			[_ in keyof PersistentShaped<SN>]?: string[]

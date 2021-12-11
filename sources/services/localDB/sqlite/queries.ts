@@ -7,7 +7,6 @@ import {
 	PrimaryPartialPersistentShaped,
 } from 'shared/types/primitives'
 import {
-	Querible,
 	WhereItem,
 	OrderItem,
 	AllowedOperators,
@@ -25,11 +24,10 @@ export class SelectQuery<
 	TableName extends ShapeName,
 	SelectedColumn extends keyof Object,
 	Object = PersistentShaped<TableName>,
-	QueribleObject = Querible<Object>,
 > {
 	private readonly selectedColumns: SelectedColumn[] = []
 
-	private readonly orderItems: OrderItem<QueribleObject>[] = []
+	private readonly orderItems: OrderItem<Object>[] = []
 	private readonly table: TableName
 
 	constructor(table: TableName, columns: SelectedColumn[]) {
@@ -49,7 +47,7 @@ export class SelectQuery<
 		return { sql, args }
 	}
 
-	orderBy = (...keys: OrderItem<QueribleObject>[]) => {
+	orderBy = (...keys: OrderItem<Object>[]) => {
 		this.orderItems.push(...keys)
 		return { fetch: this.fetch }
 	}
@@ -184,8 +182,14 @@ export class UpdateQuery<
 		// prettier-ignore
 		const sql = 'UPDATE ' + this.table + ' SET ' +
 			Object.entries(this.object).map(([k, v]) => {
-				args.push(typeof v === 'object' ? JSON.stringify(v) : v)
-				return k + ' = ?'
+				let valueSymbol
+				// TODO: should we validate updated column type by Schema ?
+				if (v) {
+					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
+					valueSymbol = '?'
+				}
+				else valueSymbol = 'NULL'
+				return k + ' = ' + valueSymbol
 			}).join(', ') +
 			this.whereBuilder.clause
 
@@ -233,8 +237,13 @@ export class UpdateMultipleQuery<
 			const args = []
 			const sql = 'UPDATE ' + this.table +' SET ' +
 				Object.entries(object).filter(([k]) => allowedKeys.has(k)).map(([k, v]) => {
-					args.push(typeof v === 'object' ? JSON.stringify(v) : v)
-					return k + ' = ?'
+					let valueSymbol
+					// TODO: should we validate updated column type by Schema ?
+					if (v) {
+						args.push(typeof v === 'object' ? JSON.stringify(v) : v)
+						valueSymbol = '?'
+					} else valueSymbol = 'NULL'
+					return k + ' = ' + valueSymbol
 				}).join(', ') + ' WHERE ' + primaryKey + ' = ?'
 			// @ts-ignore
 			args.push(object[primaryKey])
@@ -304,42 +313,42 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 	}
 
 	where = <
-		K extends keyof Querible<Object>,
-		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>,
+		K extends keyof Object,
+		O extends AllowedOperators<Object[K]>,
+		V extends InferValue<Object, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
+		isArgKey?: V extends keyof Object ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return { and: this.andWhere, or: this.orWhere, ...this._actions }
 	}
 
 	private orWhere = <
-		K extends keyof Querible<Object>,
-		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>,
+		K extends keyof Object,
+		O extends AllowedOperators<Object[K]>,
+		V extends InferValue<Object, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
+		isArgKey?: V extends keyof Object ? true : undefined,
 	) => {
 		getLast(this.items)?.push({ key: key as string, operator, arg, isArgKey })
 		return { or: this.orWhere, ...this._actions }
 	}
 
 	private andWhere = <
-		K extends keyof Querible<Object>,
-		O extends AllowedOperators<Querible<Object>[K]>,
-		V extends InferValue<Querible<Object>, K, O>,
+		K extends keyof Object,
+		O extends AllowedOperators<Object[K]>,
+		V extends InferValue<Object, K, O>,
 	>(
 		key: K,
 		operator: O,
 		arg: V,
-		isArgKey?: V extends keyof Querible<Object> ? true : undefined,
+		isArgKey?: V extends keyof Object ? true : undefined,
 	) => {
 		this.items.push([{ key: key as string, operator, arg, isArgKey }])
 		return { and: this.andWhere, ...this._actions }
@@ -347,7 +356,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 
 	search = (
 		string: string,
-		...keys: ArrayLimited<keyof FilterValueTypes<Querible<Object>, string | undefined>>
+		...keys: ArrayLimited<keyof FilterValueTypes<Object, string | undefined | null>>
 	) => {
 		const subStrings = string.split(' ').filter((s) => s.length > 0)
 		console.log('search', keys, subStrings)
@@ -366,7 +375,7 @@ class WhereBuilder<TableName extends ShapeName, Actions, Object = PersistentShap
 		return this.actions
 	}
 
-	match = (object: Partial<Querible<Object>>) => {
+	match = (object: Partial<Object>) => {
 		Object.entries(object).forEach(([key, arg]) => this.items.push([{ key, operator: '=', arg }]))
 		return this.actions
 	}
