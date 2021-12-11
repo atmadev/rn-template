@@ -106,8 +106,8 @@ export const runTest = async () => {
 		db = await setupDB(schema)
 		await _runTest(db.table('TestEntity'))
 
-		console.log('\n', styleLog('bold', '🎉 Test success!'))
+		console.log(styleLog('bold', '🎉 Test success!'))
 	} catch (e) {
-		console.log('\n', styleLog('red', '⛔️ Test error:'), e)
+		console.log(styleLog('red', '⛔️ Test error:'), e)
 	}
 }

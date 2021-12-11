@@ -65,6 +65,3 @@ export const expectKeys = <Item, Key extends keyof Item>(data: Item[], ...keys: 
 
 	console.log('  ✅', styleLog('grey', `keys ${keys.join(', ')}`))
 }
-
-// const log = (data: any) =>
-// console.log(data, 'count', data?.length, 'hash', hash(JSON.stringify(data)))
