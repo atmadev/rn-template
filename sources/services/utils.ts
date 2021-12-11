@@ -25,12 +25,23 @@ type OnlyValueTypes<T, V> = { [K in keyof T as T[K] extends V ? K : never]: T[K]
 // type OnlyObjects<T> = OnlyValueTypes<T, object>
 type OnlyStrings<T> = OnlyValueTypes<T, string>
 
-export const mapFromArray = <T, K extends keyof OnlyStrings<T>>(array: T[], key: K) => {
-	const map = {} as { [key: string]: T }
+export const mapFromArray = <
+	T,
+	K extends keyof OnlyStrings<T>,
+	V extends keyof T | undefined,
+	MAP = V extends undefined ? { [key: string]: T } : { [key: string]: T[Exclude<V, undefined>] },
+>(
+	array: T[],
+	key: K,
+	value: V,
+) => {
+	const map = {} as MAP
+
 	array.forEach((object) => {
 		// @ts-ignore
 		const id = object[key]
-		map[id] = object
+		// @ts-ignore
+		map[id] = value ? object[value] : object
 	})
 	return map
 }

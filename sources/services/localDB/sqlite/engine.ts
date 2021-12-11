@@ -3,7 +3,7 @@ import { SQLColumnInfo, SQLDatabaseInfo, SQLIndexInfo } from './types'
 import { deleteAsync } from 'expo-file-system'
 
 // TODO: test how it works if column type has changed
-const db = openDatabase('rn-template-db3.sqlite')
+const db = openDatabase('rn-template-db.sqlite')
 
 export const tableInfo = (tables: string[]): Promise<SQLColumnInfo[][]> =>
 	pragma(...tables.map((t) => `table_info(${t});`))

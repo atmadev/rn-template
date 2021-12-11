@@ -79,9 +79,9 @@ export interface SQLColumnInfo {
 	cid: number
 	name: string
 	type: string
-	notnull: boolean
+	notnull: 0 | 1
 	dflt_value: ColumnTypes | null
-	pk: number
+	pk: 0 | 1
 }
 
 export interface SQLIndexInfo {

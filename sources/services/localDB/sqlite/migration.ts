@@ -12,14 +12,16 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 ) => {
 	// MIGRATION
 	// get db schema hash
-	const [dbSchemaHashResult] = await transaction((tx, resolve) => {
+	const dbConfigRaw: DBConfigItem[] = await transaction((tx, resolve) => {
 		tx.query('SELECT sqlite_version()', undefined, handleSQLiteVersionResult)
 		tx.query('CREATE TABLE IF NOT EXISTS _Config (key PRIMARY KEY NOT NULL, value NOT NULL)')
-		tx.query(`SELECT value FROM _Config WHERE key = 'schemaHash'`, [], resolve)
+		tx.query(`SELECT * FROM _Config`, [], resolve)
 	})
 
-	const dbSchemaHash = dbSchemaHashResult?.value
-	console.log('dbSchemaHash', dbSchemaHash)
+	const dbConfig = mapFromArray(dbConfigRaw, 'key', 'value') as DBConfig
+
+	const dbSchemaHash = dbConfig?.schemaHash
+	console.log('dbConfig', dbConfig)
 
 	const shapeNames = Object.keys(schema) as UsedShapeName[]
 	const currentShapes = pick(shapes, ...shapeNames)
@@ -39,7 +41,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 		return
 	}
 
-	return migrateTables(schema, currentSchemaHash)
+	return migrateTables(schema, currentSchemaHash, dbConfig?.tableNames?.split(',') ?? [])
 }
 
 const createTableFromScratch = <UsedShapeName extends ShapeName>(
@@ -72,53 +74,57 @@ const createTablesFromScratch = <UsedShapeName extends ShapeName>(
 	hash: number,
 ) =>
 	transaction((tx) => {
-		for (const shapeNameString in schema) {
-			const shapeName = shapeNameString as UsedShapeName
+		const shapeNames = Object.keys(schema) as UsedShapeName[]
+		shapeNames.forEach((shapeName) => {
 			const schemaItem = schema[shapeName]
 			createTableFromScratch(tx, shapeName, schemaItem)
-		}
-		tx.query(`INSERT INTO _Config VALUES ('schemaHash', ${hash})`)
+		})
+
+		writeConfig(tx, hash, shapeNames)
 	})
 
 const migrateTables = async <UsedShapeName extends ShapeName>(
 	schema: SQLSchema<UsedShapeName>,
 	hash: number,
+	oldTableNames: string[],
 ) => {
 	const shapeNames = Object.keys(schema) as UsedShapeName[]
-	const oldShapeNames = shapeNames.flatMap((n) => schema[n].tableNamesHistory ?? [])
 
-	const [tableInfos, indexLists, oldTableInfosArray, oldIndexListsArray] = await Promise.all([
-		tableInfo(shapeNames),
-		indexList(shapeNames),
-		tableInfo(oldShapeNames),
-		indexList(oldShapeNames),
+	const [tableInfosList, indexListsList] = await Promise.all([
+		tableInfo(oldTableNames),
+		indexList(oldTableNames),
 	])
 
 	const oldTableInfos = {} as { [key: string]: SQLColumnInfo[] }
-	oldShapeNames.forEach((n, i) => (oldTableInfos[n] = oldTableInfosArray[i]))
+	oldTableNames.forEach((n, i) => (oldTableInfos[n] = tableInfosList[i]))
+
+	console.log('oldTableInfos before', Object.keys(oldTableInfos))
 
 	const oldIndexLists = {} as { [key: string]: SQLIndexInfo[] }
-	oldShapeNames.forEach((n, i) => (oldIndexLists[n] = oldIndexListsArray[i]))
+	oldTableNames.forEach((n, i) => (oldIndexLists[n] = indexListsList[i]))
 
 	return transaction((tx) => {
 		// ENUMERATE TABLES
-		shapeNames.forEach((shapeName, i) => {
+		shapeNames.forEach((shapeName) => {
 			const schemaItem = schema[shapeName]
-			let tableInfo = tableInfos[i]
-			let indexList = indexLists[i]
+			let tableInfo = oldTableInfos[shapeName]
+			let indexList = oldIndexLists[shapeName]
 
 			// | if not exists
-			if (tableInfo.length === 0) {
+			if (!tableInfo) {
 				let oldTableName: string | null = null
 				schemaItem.tableNamesHistory?.forEach((n) => {
-					if (tableInfo.length === 0) {
+					if (!tableInfo) {
 						tableInfo = oldTableInfos[n]
-						indexList = oldIndexLists[n]
-						oldTableName = n
+						if (tableInfo) {
+							indexList = oldIndexLists[n]
+							oldTableName = n
+							delete oldTableInfos[n]
+						}
 					}
 				})
 
-				if (tableInfo.length > 0 && oldTableName) {
+				if (tableInfo && oldTableName) {
 					// RENAME TABLE
 					tx.query(`ALTER TABLE ${oldTableName} RENAME TO ${shapeName}`)
 				} else {
@@ -126,10 +132,10 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 					createTableFromScratch(tx, shapeName, schemaItem)
 					return
 				}
-			}
+			} else delete oldTableInfos[shapeName]
 
 			// MIGRATE TABLE
-			const tableInfoMap = mapFromArray(tableInfo, 'name')
+			const tableInfoMap = mapFromArray(tableInfo, 'name', undefined)
 			mapKeys(shapeName, (key, { flags, required, primary }) => {
 				if (flags.includes('transient')) return null
 				// if column not exist
@@ -157,7 +163,7 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 				delete tableInfoMap[oldColumnName ?? key]
 			})
 
-			const indexListMap = mapFromArray(indexList, 'name')
+			const indexListMap = mapFromArray(indexList, 'name', undefined)
 
 			const params = { tx, shapeName, schemaItem, indexListMap }
 			migrateIndex(1, params)
@@ -170,21 +176,18 @@ const migrateTables = async <UsedShapeName extends ShapeName>(
 
 			// DROP COLUMNS
 			// It should be done after indexes dropping
-			for (const deletedColumn in tableInfoMap)
-				tx.query(
-					SQLiteVersion >= 3.35
-						? `ALTER TABLE ${shapeName} DROP ${deletedColumn}`
-						: `UPDATE ${shapeName} SET ${deletedColumn} = NULL`,
-				)
+			for (const deletedColumn in tableInfoMap) {
+				if (SQLiteVersion >= 3.35) tx.query(`ALTER TABLE ${shapeName} DROP ${deletedColumn}`)
+				else if (tableInfoMap[deletedColumn].notnull === 0)
+					tx.query(`UPDATE ${shapeName} SET ${deletedColumn} = NULL`)
+			}
 		})
 
+		console.log('oldTableInfos after', Object.keys(oldTableInfos))
 		// DROP TABLES
-		// TODO: save all table names in the config, and delete unused tables
-		// for (const oldTableName in oldTableInfos)
-		// if (oldTableInfos[oldTableName].length > 0) tx.query('DROP TABLE ' + oldTableName)
+		for (const oldTableName in oldTableInfos) tx.query('DROP TABLE ' + oldTableName)
 
-		// set new schema hash
-		tx.query(`REPLACE INTO _Config VALUES ('schemaHash', ${hash})`)
+		writeConfig(tx, hash, shapeNames)
 	})
 }
 
@@ -214,6 +217,10 @@ const migrateIndex = <UsedShapeName extends ShapeName>(
 	})
 }
 
+// prettier-ignore
+const writeConfig = (tx: Transaction, hash: number, shapeNames: string[]) => 
+	tx.query(`REPLACE INTO _Config VALUES ('schemaHash', ${hash}), ('tableNames', '${shapeNames.join(',')}')`)
+
 let SQLiteVersion = 0.0
 
 const handleSQLiteVersionResult = (result: any[]) => {
@@ -222,4 +229,14 @@ const handleSQLiteVersionResult = (result: any[]) => {
 
 	SQLiteVersion = parseFloat(major + '.' + minor)
 	console.log('SQLiteVersion', SQLiteVersion)
+}
+
+interface DBConfigItem {
+	key: string
+	value: string | number
+}
+
+interface DBConfig {
+	schemaHash: number
+	tableNames: string
 }
