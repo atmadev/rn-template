@@ -9,6 +9,7 @@ import profiles from 'resources/profiles.json'
 import profileConfigs from 'resources/profileConfigs.json'
 import entries from 'resources/entries.json'
 import { importEntries, importProfileConfigs, insertProfiles, runTest } from 'services/localDB'
+import { createScreen } from 'screens/utils'
 
 export const SQLiteTestLabScreen = (_: SQLStackScreenProps<'SQLTestLab'>) => {
 	const openSearchProfile = useCallback(() => {
@@ -38,3 +39,4 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 })
+export const SQLiteTestLabScreenTest = createScreen('SQLTestLab', SQLiteTestLabScreen)

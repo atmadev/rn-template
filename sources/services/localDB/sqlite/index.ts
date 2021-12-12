@@ -13,12 +13,11 @@ import {
 	UpdateQuery,
 } from './queries'
 import { setUpSchemaIfNeeded } from './migration'
-import { styleLog } from 'shared/utils'
 
 export const setupDB = async <UsedShapeNames extends ShapeName>(
 	schema: SQLSchema<UsedShapeNames>,
 ): Promise<SQLDB<UsedShapeNames>> => {
-	console.log(styleLog('bold', '\n💿 Setup DB\n'))
+	// console.log(styleLog('bold', '\n💿 Setup DB\n'))
 
 	const shapeNames = Object.keys(schema) as UsedShapeNames[]
 

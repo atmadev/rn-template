@@ -21,14 +21,14 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 	const dbConfig = mapFromArray(dbConfigRaw, 'key', 'value') as DBConfig
 
 	const dbSchemaHash = dbConfig?.schemaHash
-	console.log('dbConfig', dbConfig)
+	// console.log('dbConfig', dbConfig)
 
 	const shapeNames = Object.keys(schema) as UsedShapeName[]
 	const currentShapes = pick(shapes, ...shapeNames)
 	const complexSchema = { schema, currentShapes }
 
 	const currentSchemaHash = hash(JSON.stringify(complexSchema))
-	console.log('currentSchemaHash', currentSchemaHash)
+	// console.log('currentSchemaHash', currentSchemaHash)
 
 	// if no schema hash
 	if (!dbSchemaHash) {
@@ -37,7 +37,7 @@ export const setUpSchemaIfNeeded = async <UsedShapeName extends ShapeName>(
 	}
 	// if schema hash the same
 	if (dbSchemaHash === currentSchemaHash) {
-		console.log('Setup is not needed')
+		// console.log('Setup is not needed')
 		return
 	}
 

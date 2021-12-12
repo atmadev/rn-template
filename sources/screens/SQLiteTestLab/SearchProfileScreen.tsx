@@ -4,10 +4,11 @@ import { FlatList, ListRenderItem, StyleSheet } from 'react-native'
 import { Text, View, TextInput } from 'components/Themed'
 import { Profile } from 'shared/types'
 import { searchProfile } from 'services/localDB'
+import { createScreen } from 'screens/utils'
 
 type ResultItem = Pick<Profile, 'uid' | 'firstName' | 'lastName' | 'spiritualName'>
 
-export const SQLiteSearchProfileScreen = () => {
+export const SQLiteSearchProfileScreen = createScreen('SearchProfile', () => {
 	const [result, setResult] = React.useState<ResultItem[]>([])
 	const [searchString, setSearchString] = React.useState('')
 
@@ -36,7 +37,7 @@ export const SQLiteSearchProfileScreen = () => {
 			/>
 		</View>
 	)
-}
+})
 
 const renderItem: ListRenderItem<ResultItem> = ({ item }) => {
 	return (

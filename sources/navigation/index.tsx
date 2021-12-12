@@ -14,7 +14,7 @@ import Colors from '../constants/Colors'
 import useColorScheme from '../hooks/useColorScheme'
 import ModalScreen from 'screens/ModalScreen'
 import NotFoundScreen from 'screens/NotFoundScreen'
-import { SQLiteTestLabScreen } from 'screens/SQLiteTestLab'
+import { SQLiteTestLabScreenTest } from 'screens/SQLiteTestLab'
 import TabTwoScreen from 'screens/TabTwoScreen'
 import {
 	RootStackParamList,
@@ -23,11 +23,12 @@ import {
 	SQLStackParamList,
 } from 'shared/types'
 import LinkingConfiguration from './LinkingConfiguration'
-import { SQLiteSearchProfileScreen } from 'screens/SQLiteTestLab/SearchProfileScreen'
+import { setNavigation } from './utils'
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
 	return (
 		<NavigationContainer
+			ref={setNavigation}
 			linking={LinkingConfiguration}
 			theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
 		>
@@ -107,8 +108,8 @@ const SQLStack = createNativeStackNavigator<SQLStackParamList>()
 
 const SQLStackNavigator = () => (
 	<SQLStack.Navigator>
-		<SQLStack.Screen name="SQLTestLab" component={SQLiteTestLabScreen} />
-		<SQLStack.Screen name="SearchProfile" component={SQLiteSearchProfileScreen} />
+		<SQLStack.Screen name="SQLTestLab" component={SQLiteTestLabScreenTest.component()} />
+		{/* <SQLStack.Screen name="SearchProfile" component={SQLiteSearchProfileScreen.component} /> */}
 	</SQLStack.Navigator>
 )
 
