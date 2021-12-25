@@ -1,18 +1,19 @@
-import * as React from 'react'
+import React, { useEffect } from 'react'
 import { FlatList, ListRenderItem, StyleSheet } from 'react-native'
 
-import { Text, View, TextInput } from 'components/Themed'
+import { Text, View, TextInput } from 'components/primitives'
 import { Profile } from 'shared/types'
 import { searchProfile } from 'services/localDB'
-import { createScreen } from 'screens/utils'
+import { createScreen, createStyles } from 'screens/utils'
+import { store } from 'store'
 
 type ResultItem = Pick<Profile, 'uid' | 'firstName' | 'lastName' | 'spiritualName'>
 
-export const SQLiteSearchProfileScreen = createScreen('SearchProfile', () => {
+export const SQLiteSearchProfile = createScreen('SearchProfile', () => {
 	const [result, setResult] = React.useState<ResultItem[]>([])
 	const [searchString, setSearchString] = React.useState('')
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (searchString.trim().length === 0) setResult([])
 		else {
 			searchProfile(searchString)
@@ -51,12 +52,13 @@ const renderItem: ListRenderItem<ResultItem> = ({ item }) => {
 
 const keyExtractor = (item: ResultItem) => item.uid
 
-const styles = StyleSheet.create({
-	container: {
+const styles = createStyles({
+	container: () => ({
 		flex: 1,
 		alignItems: 'stretch',
 		justifyContent: 'center',
-	},
+		backgroundColor: store.theme.background,
+	}),
 	title: {
 		fontSize: 30,
 		fontWeight: '500',
@@ -67,21 +69,23 @@ const styles = StyleSheet.create({
 		height: 1,
 		width: '80%',
 	},
-	textInput: {
+	textInput: () => ({
 		height: 44,
 		fontSize: 18,
 		paddingHorizontal: 16,
 		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: '#ccc',
-	},
+		borderBottomColor: store.theme.separator,
+		color: store.theme.text,
+	}),
 	flatList: { flex: 1 },
-	itemContainer: {
+	itemContainer: () => ({
 		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: '#ccc',
-	},
-	itemText: {
+		borderBottomColor: store.theme.separator,
+	}),
+	itemText: () => ({
 		fontSize: 18,
 		marginHorizontal: 16,
 		marginVertical: 10,
-	},
+		color: store.theme.text,
+	}),
 })

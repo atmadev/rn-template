@@ -1,4 +1,4 @@
-import { Type, ShapeName, Flag } from './primitives'
+import { Type, ShapeName, Flag, Shape } from './primitives'
 import { shapes } from './'
 
 export const mapKeys = <T>(
@@ -27,4 +27,27 @@ export const mapKeys = <T>(
 			return mapper(key, { type, flags, required, primary })
 		})
 		.filter((_) => _) as T[]
+}
+
+export const validateObjectWithShape = (
+	object: Record<string, any>,
+	shape: Shape,
+	shapeName: string,
+	errorName: string = 'InvalidType',
+) => {
+	for (const key in shape) {
+		const item = shape[key]
+		if (item instanceof Object && '_shapeItem' in item) {
+			if ('required' in item) {
+				const value = object[key]
+				if (value === undefined || value === null) {
+					const error = new Error(
+						`${shapeName}.${key} is ${value}:\n${JSON.stringify(object, undefined, 2)}`,
+					)
+					error.name = errorName
+					throw error
+				}
+			}
+		}
+	}
 }

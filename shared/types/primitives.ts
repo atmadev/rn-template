@@ -22,8 +22,8 @@ type ShapedItem<T extends Type> =
 	T extends { _string: infer T } ? T extends Type ? Record<string, ShapedItem<T>> : never // Map
 	: T extends PrimitiveType ? PrimitiveTypeMap[T]
 	: T extends PrimitiveType[] ? PrimitiveTypeMap[T[number]][]
-	: T extends Shape ? _Shaped<T>
-	: T extends Shape[] ? _Shaped<T[number]>[] : never
+	: T extends Shape ? Shaped<T>
+	: T extends Shape[] ? Shaped<T[number]>[] : never
 
 type ExtractFlag<I extends ShapeItem, F extends Flag> = Extract<I['flags'][number], F>
 // prettier-ignore
@@ -39,14 +39,14 @@ type ShapedInternal<S extends Shape | Shape[]> = { [K in keyof S]
 	: S[K] extends Type ? ShapedItem<S[K]> : never
 }
 
-type _Shaped<S extends Shape | Shape[]> = PartialNullable<ShapedInternal<S>> &
+export type Shaped<S extends Shape | Shape[]> = PartialNullable<ShapedInternal<S>> &
 	(S extends Shape ? ShapedInternal<RequiredOnly<S>> : {})
 
-type _PersistentShaped<S extends Shape> = _Shaped<{
+type _PersistentShaped<S extends Shape> = Shaped<{
 	[K in keyof S as IsPersistent<S[K], K, never>]: S[K]
 }>
 
-type _PrimaryShaped<S extends Shape> = _Shaped<{
+type _PrimaryShaped<S extends Shape> = Shaped<{
 	[K in keyof S as IsPrimary<S[K], K, never>]: S[K]
 }>
 
@@ -61,7 +61,7 @@ type PrimaryItem<S extends Shape> = keyof {
 export type Shapes = typeof shapes
 export type ShapeName = keyof Shapes
 
-export type Shaped<SN extends ShapeName> = _Shaped<Shapes[SN]>
+export type ShapedNamed<SN extends ShapeName> = Shaped<Shapes[SN]>
 export type PersistentShaped<SN extends ShapeName> = _PersistentShaped<Shapes[SN]>
 export type PrimaryPartialPersistentShaped<SN extends ShapeName> = ExtractAndMap<
 	keyof Shapes[SN],

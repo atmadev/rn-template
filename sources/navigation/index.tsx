@@ -8,64 +8,47 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import * as React from 'react'
-import { ColorSchemeName, Pressable } from 'react-native'
+import { Pressable } from 'react-native'
 
-import Colors from '../constants/Colors'
-import useColorScheme from '../hooks/useColorScheme'
-import ModalScreen from 'screens/ModalScreen'
-import NotFoundScreen from 'screens/NotFoundScreen'
-import { SQLiteTestLabScreenTest } from 'screens/SQLiteTestLab'
-import TabTwoScreen from 'screens/TabTwoScreen'
-import {
-	RootStackParamList,
-	RootTabParamList,
-	RootTabScreenProps,
-	SQLStackParamList,
-} from 'shared/types'
-import LinkingConfiguration from './LinkingConfiguration'
+import { ModalExample } from 'screens/ModalExample'
+import { SQLiteTestLab } from 'screens/SQLiteTestLab'
+import { SQLiteSearchProfile } from 'screens/SQLiteTestLab/SearchProfileScreen'
+import { TabTwo } from 'screens/TabTwoScreen'
 import { setNavigation } from './utils'
+import { store } from 'store'
+import { observer } from 'mobx-react-lite'
 
-export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+export const Navigation = observer(() => {
 	return (
 		<NavigationContainer
 			ref={setNavigation}
-			linking={LinkingConfiguration}
-			theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+			theme={store.colorScheme === 'dark' ? DarkTheme : DefaultTheme}
 		>
-			<RootNavigator />
+			<Stack.Navigator>
+				<Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
+				<Stack.Group screenOptions={{ presentation: 'modal' }}>
+					<Stack.Screen {...ModalExample.Screen} />
+				</Stack.Group>
+			</Stack.Navigator>
 		</NavigationContainer>
 	)
-}
+})
 
 /**
  * A root stack navigator is often used for displaying modals on top of all other content.
  * https://reactnavigation.org/docs/modal
  */
-const Stack = createNativeStackNavigator<RootStackParamList>()
-
-function RootNavigator() {
-	return (
-		<Stack.Navigator>
-			<Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
-			<Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-			<Stack.Group screenOptions={{ presentation: 'modal' }}>
-				<Stack.Screen name="Modal" component={ModalScreen} />
-			</Stack.Group>
-		</Stack.Navigator>
-	)
-}
+const Stack = createNativeStackNavigator()
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
-const BottomTab = createBottomTabNavigator<RootTabParamList>()
+const BottomTab = createBottomTabNavigator()
 
-function BottomTabNavigator() {
-	const colorScheme = useColorScheme()
-
-	const options = React.useCallback(({ navigation }: RootTabScreenProps<'TabOne'>) => {
-		const navigateModal = React.useCallback(() => navigation.navigate('Modal'), [])
+const BottomTabNavigator = () => {
+	const options = React.useCallback(() => {
+		const navigateModal = React.useCallback(() => ModalExample.navigate(), [])
 
 		return {
 			title: 'SQLite Test Lab',
@@ -75,7 +58,7 @@ function BottomTabNavigator() {
 					<FontAwesome
 						name="info-circle"
 						size={25}
-						color={Colors[colorScheme].text}
+						color={store.theme.text}
 						style={{ marginRight: 15 }}
 					/>
 				</Pressable>
@@ -87,14 +70,13 @@ function BottomTabNavigator() {
 		<BottomTab.Navigator
 			initialRouteName="TabOne"
 			screenOptions={{
-				tabBarActiveTintColor: Colors[colorScheme].tint,
+				tabBarActiveTintColor: store.theme.tint,
 				headerShown: false,
 			}}
 		>
 			<BottomTab.Screen name="TabOne" component={SQLStackNavigator} options={options} />
 			<BottomTab.Screen
-				name="TabTwo"
-				component={TabTwoScreen}
+				{...TabTwo.Screen}
 				options={{
 					title: 'Tab Two',
 					tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
@@ -104,12 +86,12 @@ function BottomTabNavigator() {
 	)
 }
 
-const SQLStack = createNativeStackNavigator<SQLStackParamList>()
+const SQLStack = createNativeStackNavigator()
 
 const SQLStackNavigator = () => (
 	<SQLStack.Navigator>
-		<SQLStack.Screen name="SQLTestLab" component={SQLiteTestLabScreenTest.component()} />
-		{/* <SQLStack.Screen name="SearchProfile" component={SQLiteSearchProfileScreen.component} /> */}
+		<SQLStack.Screen {...SQLiteTestLab.Screen} />
+		<SQLStack.Screen {...SQLiteSearchProfile.Screen} />
 	</SQLStack.Navigator>
 )
 
