@@ -3,12 +3,17 @@ import * as React from 'react'
 import { Text, View } from 'components/primitives'
 import { store } from 'store'
 import { createScreen, createStyles } from './utils'
+import { login } from 'services/network/vs'
+import { Button } from 'react-native'
 
 export const TabTwo = createScreen('TabTwo', () => {
+	const loginCallback = React.useCallback(() => login('test@test.com', '1'), [])
+
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>Tab Two</Text>
 			<View style={styles.separator} />
+			<Button title="Login" onPress={loginCallback} />
 		</View>
 	)
 })

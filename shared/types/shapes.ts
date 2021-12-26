@@ -1,21 +1,8 @@
 // prettier-ignore
-import { primitiveTypes, Type, Flag, Shape } from './primitives'
+import { r, p, _,  shape } from './shapeTool'
+import { primitiveTypes } from './primitives'
 
 const { string, number, boolean, any, TRUE } = primitiveTypes
-
-// prettier-ignore
-const _ = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, flags, _shapeItem: true as const })
-// prettier-ignore
-const r = <T extends Type, F extends Flag[]>(type: T, ...flags: F) => ({ type, flags, required: true as const, _shapeItem: true as const })
-const p = <T extends Type, F extends Exclude<Flag, 'transient'>[]>(type: T, ...flags: F) => ({
-	type,
-	flags,
-	required: true as const,
-	primary: true as const,
-	_shapeItem: true as const,
-})
-
-const shape = <T extends Shape>(s: T) => s
 
 export const CustomField = shape({
 	name: r(string),

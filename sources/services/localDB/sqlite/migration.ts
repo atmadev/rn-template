@@ -1,7 +1,7 @@
 import { transaction, Transaction } from './engine'
 import { pick, hash, mapFromArray } from 'services/utils'
 import { ShapeName } from 'shared/types/primitives'
-import { shapes } from 'shared/types'
+import * as shapes from 'shared/types/shapes'
 import { mapKeys } from 'shared/types/utils'
 import { indexList, tableInfo } from './engine'
 import { SQLSchema, SQLIndexInfo, SQLColumnInfo } from './types'

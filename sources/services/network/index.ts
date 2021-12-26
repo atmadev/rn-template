@@ -1,38 +1,59 @@
-import { Shape, Shaped } from 'shared/types/primitives'
+import { FALSE, Shape, Shaped, TRUE } from 'shared/types/primitives'
 import { validateObjectWithShape } from 'shared/types/utils'
 
 export const request = async <ParamsShape extends Shape, ResponseShape extends Shape>(
 	method: 'GET' | 'POST',
 	url: string,
-	params: {
-		shape: ParamsShape
-		shapeName: string
-		body: Shaped<ParamsShape>
+	body: {
+		shape: { [shapeName: string]: ParamsShape }
+		data: Shaped<ParamsShape>
 	},
-	response: {
-		shape: ResponseShape
-		shapeName: string
-	},
+	response: { [shapeName: string]: ResponseShape },
 ): Promise<Response<Shaped<ResponseShape>>> => {
-	validateObjectWithShape(params.body, params.shape, params.shapeName, 'Invalid Request Body')
+	const [bodyShapeName, bodyShape] = Object.entries(body.shape)[0]
+	const bodyJson = JSON.stringify(body.data)
 
-	const result = await fetch(url, { method, body: JSON.stringify(params) })
+	console.log('request', method, url, bodyJson)
 
-	const json = await result.json()
-	validateObjectWithShape(json, response.shape, response.shapeName)
-	return json
+	validateObjectWithShape(body.data, bodyShape, bodyShapeName, 'Invalid Request Body')
+
+	const result = await fetch(url, {
+		method,
+		headers: {
+			'Content-Type': 'application/json;charset=utf-8',
+		},
+		body: bodyJson,
+	})
+
+	console.log('result', result.ok, result.status, result.statusText, result.type)
+	const data = await result.json()
+	console.log('response', method, url, data)
+
+	if (result.ok) {
+		// TODO: validate response code
+
+		const [responseShapeName, responseShape] = Object.entries(response)[0]
+		validateObjectWithShape(data, responseShape, responseShapeName)
+		return { success: TRUE, data }
+	} else {
+		return {
+			success: FALSE,
+			error: {
+				name: data.error,
+				message: data.error_description,
+			},
+		}
+	}
 }
 
-// declare interface RequestInit {
-// 	body?: BodyInit_
-// 	credentials?: RequestCredentials_
-// 	headers?: HeadersInit_
-// 	integrity?: string
-// 	keepalive?: boolean
-// 	method?: string
-// 	referrer?: string
-// 	window?: any
-// 	signal?: AbortSignal
-// }
+type Response<T> =
+	| { success: true; data: T }
+	| {
+			success: false
+			error: {
+				name: ErrorName
+				message: string
+			}
+	  }
 
-type Response<T> = { success: true; data: T } | { success: false; message: string }
+type ErrorName = 'unsupported_grant_type'

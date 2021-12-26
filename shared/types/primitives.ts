@@ -1,4 +1,4 @@
-import { shapes } from './'
+import * as shapes from './shapes'
 
 export type PrimitiveType = keyof PrimitiveTypeMap
 
