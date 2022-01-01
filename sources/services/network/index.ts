@@ -2,27 +2,36 @@ import { FALSE, Shape, Shaped, TRUE } from 'shared/types/primitives'
 import { validateObjectWithShape } from 'shared/types/utils'
 
 export const request = async <ParamsShape extends Shape, ResponseShape extends Shape>(
-	method: 'GET' | 'POST',
+	method: RequestMethod,
 	url: string,
-	body: {
-		shape: { [shapeName: string]: ParamsShape }
-		data: Shaped<ParamsShape>
+	request?: {
+		headers?: { [key: string]: string }
+		body?: {
+			shape: { [shapeName: string]: ParamsShape }
+			data: Shaped<ParamsShape>
+		}
 	},
-	response: { [shapeName: string]: ResponseShape },
-): Promise<Response<Shaped<ResponseShape>>> => {
-	const [bodyShapeName, bodyShape] = Object.entries(body.shape)[0]
-	const bodyJson = JSON.stringify(body.data)
+	response?: { [shapeName: string]: ResponseShape },
+): Promise<
+	| { success: true; data: Response<Shaped<ResponseShape>> }
+	| { success: false; error: { name: string; message: string } }
+> => {
+	console.log('request', method, url, request?.body?.data)
+	let body
 
-	console.log('request', method, url, bodyJson)
-
-	validateObjectWithShape(body.data, bodyShape, bodyShapeName, 'Invalid Request Body')
+	if (request?.body) {
+		const [bodyShapeName, bodyShape] = Object.entries(request.body.shape)[0]
+		validateObjectWithShape(request.body.data, bodyShape, bodyShapeName, 'Invalid Request Body')
+		body = JSON.stringify(request.body.data)
+	}
 
 	const result = await fetch(url, {
 		method,
 		headers: {
 			'Content-Type': 'application/json;charset=utf-8',
+			...request?.headers,
 		},
-		body: bodyJson,
+		body,
 	})
 
 	console.log('result', result.ok, result.status, result.statusText, result.type)
@@ -32,8 +41,10 @@ export const request = async <ParamsShape extends Shape, ResponseShape extends S
 	if (result.ok) {
 		// TODO: validate response code
 
-		const [responseShapeName, responseShape] = Object.entries(response)[0]
-		validateObjectWithShape(data, responseShape, responseShapeName)
+		if (response) {
+			const [responseShapeName, responseShape] = Object.entries(response)[0]
+			validateObjectWithShape(data, responseShape, responseShapeName)
+		}
 		return { success: TRUE, data }
 	} else {
 		return {
@@ -57,3 +68,5 @@ type Response<T> =
 	  }
 
 type ErrorName = 'unsupported_grant_type'
+
+export type RequestMethod = 'GET' | 'POST' | 'PUT'
