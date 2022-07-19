@@ -1,5 +1,3 @@
-import { FontAwesome } from '@expo/vector-icons'
-import * as Font from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { initLocalDB } from 'services/localDB'
 import { store } from 'store'
@@ -9,13 +7,7 @@ export const initApp = async () => {
 		SplashScreen.preventAutoHideAsync()
 
 		// Load fonts
-		await Promise.all([
-			Font.loadAsync({
-				...FontAwesome.font,
-				'space-mono': require('assets/fonts/SpaceMono-Regular.ttf'),
-			}),
-			initLocalDB(),
-		])
+		await Promise.all([initLocalDB()])
 
 		store.setInited()
 	} catch (e) {

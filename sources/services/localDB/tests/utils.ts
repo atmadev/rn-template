@@ -24,7 +24,7 @@ export const expectIDs = (data: { id: number }[], ...ids: number[]) => {
 
 export const expectOrder = <Item, Key extends keyof Item, Value = Item[Key]>(
 	data: Item[],
-	key: Key,
+	key: Key & string,
 	desc = false,
 ) => {
 	let previous: Value | null = null
@@ -51,7 +51,7 @@ export const expectOrder = <Item, Key extends keyof Item, Value = Item[Key]>(
 
 export const expectKeys = <Item, Key extends keyof Item>(data: Item[], ...keys: Key[]) => {
 	for (const item of data) {
-		const selectedKeys = Object.keys(item) as Key[]
+		const selectedKeys = Object.keys(item) as (Key & string)[]
 		if (selectedKeys.length !== keys.length)
 			throw new Error(`Selected ${selectedKeys.length} keys instead of ${keys.length}`)
 
