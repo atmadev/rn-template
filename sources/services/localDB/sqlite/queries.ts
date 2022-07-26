@@ -55,7 +55,9 @@ export class SelectQuery<
 	fetch = async (
 		limit?: number,
 		offset?: number,
-	): Promise<Expand<Pick<Object, SelectedColumn>>[]> => {
+	): Promise<
+		Expand<[SelectedColumn] extends [never] ? Object : Pick<Object, SelectedColumn>>[]
+	> => {
 		const objects = await readTransaction((tx, resolve) => {
 			const { sql, args } = this.sql(limit, offset)
 			tx.query(sql, args, resolve)
